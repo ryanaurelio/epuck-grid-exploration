@@ -40,6 +40,37 @@ Engineering Notebook
 * Temperature not available.
 * No floor sensors.
 
+# 5th January 2022
+*Tried to connect the E-puck with Wi-Fi
+*Tried to update the firmware but got gdb error
+*Checked the Wi-Fi with executable from the website
+*Tried to open webots and ROS
+*Tried to find out about the lag in Wi-Fi connection (the sound repeats itself after few notes, etc)
+
+#6th January 2022
+*Still trying to figure out about the lag
+*Tried to connect webots with E-puck, but program crashes everytime tried to input ipaddr (still no progress)
+*Tried to update ROS-hydro from the gctronic website, because it's no longer supported, but no avail
+*Tried to connect to older version of webots, got the same result
+*Tried to connect to webots in ROS-hydro, but the app was very laggy in VM, tried to resolve this issue, but no avail
+*Tried to download ROS and install it manually, not yet done, considering need a great amount of time we needed
+    and little time we had
+
+#7th January 2022
+Sick after getting Covid booster
+
+#8th January 2022
+*Still sick, but little better
+*Making progress in making the E-puck moves
+*Making the map and implements algorithm
+
+#9th January 2022
+*Algorithm done
+*Considering making the E-puck went back to first place after it is done with the algorithm
+
+
+
+
 # Ideas:
 (1) Map detection: Check algorithm for vacuum robot
 * First the robot will explore the area to make a map.

@@ -1,0 +1,58 @@
+Engineering Notebook
+
+# 15th December 2021
+* Check the physical condition of the robot.
+* Try to turn on and off the robot.
+
+# 21st December 2021
+* Installed USB driver for Windows.
+* Drivers already installed
+* When choosing USB Serial (CDC) there is only "Downgrade Driver" option
+* USB serial ports:
+  + (COM3) e-puck2 GDB Server
+  + (COM4) e-puck2 Serial Monitor
+  + (COM5) e-puck2 STM32F407
+* PC interface not responding when trying to connect to COM5
+* Following the steps from https://www.gctronic.com/doc/index.php?title=e-puck2_robot_side_development.
+* Downloaded Eclipse IDE for e-puck2.
+* Error when trying to build the project.
+* Found a website for coding in python: https://www.giters.com/davidfrisch/UNIFR_API_EPUCK.
+* Also considering another website for PC side development: https://www.gctronic.com/doc/index.php?title=e-puck2_PC_side_development.
+
+# 22nd December 2021
+* Re-build the project in Eclipse IDE without connecting to the robot.
+* Project compiled successfully.
+* Trying to use PC interface again.
+* Success by setting the selector to 8.
+* Trying the robot sensors to detect multiple color of highlighters.
+* e-puck2 doesn't react to any highlighter.
+* In comparison to the e-puck in the webots, our e-puck doesn't have IR sensor at the bottom.
+
+# 2nd January 2022
+* Connect via Bluetooth.
+* Testing the PC interface via UART.
+* Established connection with python.
+* Print available commands.
+
+# 4th January 2022
+* Trying different commands from advanced sercom protocol: https://www.gctronic.com/doc/index.php/Advanced_sercom_protocol.
+* Try to parse all sensors from advanced sercom v2.
+* Temperature not available.
+* No floor sensors.
+
+# Ideas:
+(1) Map detection: Check algorithm for vacuum robot
+* First the robot will explore the area to make a map.
+* Map is known to all robots.
+* Start to explore.
+Problem: 
+* Calculating the distance inside the area.
+* Creating a map:
+  * The proximity of the distance
+
+(2) Image recognition: Using machine learning to replace floor sensors
+* Tapes are set across the map.
+* Robot only able to move on top of tape.
+* The goal is to have 100% tape coverage.
+Problems:
+* Refresh rate of the camera is very low.

@@ -23,12 +23,12 @@ class Map:
             if height < 3 or width < 3:
                 raise ValueError("Minimum size 3x3.")
 
-        # Initialize
-        self.grid = []
-        self.height = height
-        self.width = width
-        self.movement = []
-        self.old_coordinate = (0, 0)
+            # Initialize
+            self.grid = []
+            self.height = height
+            self.width = width
+            self.movement = []
+            self.old_coordinate = (0, 0)
 
             # Create a grid with border
             self.grid.append(["x"] * width)
@@ -42,6 +42,8 @@ class Map:
             self.grid = [list(row) for row in rows]
             self.height = len(self.grid)
             self.width = len(self.grid[0])
+            self.movement = []
+            self.old_coordinate = (0, 0)
 
             # Shape check
             if not all(len(row) == self.width for row in self.grid):
@@ -166,7 +168,7 @@ m.fill(3, 1)
 # m = Map(10, 10)
 # m.set_grid(3, 4, "o")
 # print(m)
-m = Map(string = "xxxxxxxxxx/x........x/x........x/x...o....x/x........x/x........x/x........x/x........x/x........x/xxxxxxxxxx")
+# m = Map(string = "xxxxxxxxxx/x........x/x........x/x...o....x/x........x/x........x/x........x/x........x/x........x/xxxxxxxxxx")
 print(m)
 print(''.join(m.movement))
 print(m.old_coordinate)

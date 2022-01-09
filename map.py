@@ -1,5 +1,5 @@
 class Map:
-
+    """Map class"""
     # Available symbols
     symbols = [
         "x",    # Obstacle / Wall
@@ -53,10 +53,10 @@ class Map:
 
     def __repr__(self):
         """Represents map as string"""
-        repr = ""
+        rep = ""
         for row in self.grid:
-            repr += "".join(row) + "\n"
-        return repr
+            rep += "".join(row) + "\n"
+        return rep
 
     def set_grid(self, row, column, symbol):
         """Set a status for a specific grid"""

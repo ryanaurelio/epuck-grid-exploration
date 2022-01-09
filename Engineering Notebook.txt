@@ -7,7 +7,7 @@ Engineering Notebook
 # 21st December 2021
 * Installed USB driver for Windows.
 * Drivers already installed
-* When choosing USB Serial (CDC) there is only "Downgrade Driver" option
+* USB Serial (CDC) only has "Downgrade Driver" option
 * USB serial ports:
   + (COM3) e-puck2 GDB Server
   + (COM4) e-puck2 Serial Monitor
@@ -22,11 +22,29 @@ Engineering Notebook
 # 22nd December 2021
 * Re-build the project in Eclipse IDE without connecting to the robot.
 * Project compiled successfully.
-* Trying to use PC interface again.
+* Retry using PC interface.
 * Success by setting the selector to 8.
-* Trying the robot sensors to detect multiple color of highlighters.
+* Trying the robot's sensors to detect multiple color of highlighters.
 * e-puck2 doesn't react to any highlighter.
 * In comparison to the e-puck in the webots, our e-puck doesn't have IR sensor at the bottom.
+
+# 28th December 2021
+* Ideas:
+  (1) Map detection: Check algorithm for vacuum robot
+      * First the robot will explore the area to make a map.
+      * Map is known to all robots.
+      * Start to explore.
+  Problem:
+  * Calculating the distance inside the area.
+  * Creating a map:
+    * The proximity of the distance
+
+  (2) Image recognition: Using machine learning to replace floor sensors
+      * Tapes are set across the map.
+      * Robot only able to move on top of tape.
+      * The goal is to have 100% tape coverage.
+      Problems:
+      * Refresh rate of the camera is very low.
 
 # 2nd January 2022
 * Connect via Bluetooth.
@@ -41,49 +59,42 @@ Engineering Notebook
 * No floor sensors.
 
 # 5th January 2022
-*Tried to connect the E-puck with Wi-Fi
-*Tried to update the firmware but got gdb error
-*Checked the Wi-Fi with executable from the website
-*Tried to open webots and ROS
-*Tried to find out about the lag in Wi-Fi connection (the sound repeats itself after few notes, etc)
+* Try to connect the E-puck with Wi-Fi.
+* Try to update the firmware.
+* GDB error.
+* Check the Wi-Fi with executable from the website.
+* Try to open Webots and ROS.
+* Try to find out about the lag in Wi-Fi connection (the sound repeats itself after few notes, etc.).
 
-#6th January 2022
-*Still trying to figure out about the lag
-*Tried to connect webots with E-puck, but program crashes everytime tried to input ipaddr (still no progress)
-*Tried to update ROS-hydro from the gctronic website, because it's no longer supported, but no avail
-*Tried to connect to older version of webots, got the same result
-*Tried to connect to webots in ROS-hydro, but the app was very laggy in VM, tried to resolve this issue, but no avail
-*Tried to download ROS and install it manually, not yet done, considering need a great amount of time we needed
-    and little time we had
+# 6th January 2022
+* Try to figure out about the lag.
+* Try to connect Webots with e-puck.
+* Program keep crashing when trying to input ipaddr (still no progress).
+* Try to update ROS-hydro from the gctronic website, because it's no longer supported, but no available.
+* Try to connect to older version of Webots, got the same result.
+* Try to connect to Webots in ROS-hydro, but the app was very laggy in VM, tried to resolve this issue, but no available.
+* Try to download ROS and install it manually, not yet done, considering need a great amount of time we needed and little time we have.
 
-#7th January 2022
-Sick after getting Covid booster
+# 7th January 2022
+* Idea for exploration algorithm:
+  * Given a map as grid with border with obstacles, trs to cover the map.
+  * Simple approach for exploration algorithm using "Flood Fill":
+    * https://en.wikipedia.org/wiki/Flood_fill#Stack-based_recursive_implementation_(four-way)
+  * Map generation using 1 robot first to explore using proximity sensors.
 
-#8th January 2022
-*Still sick, but little better
-*Making progress in making the E-puck moves
-*Making the map and implements algorithm
+# 8th January 2022
+* Define speed and sleep time for 1 step.
+* Implement functions to step forward and backward for 1 unit step.
+* Implement functions to turn left and right for 90°.
+* Implement functions to move the robot to north, east, south, and west.
+* Implement a function to parse a sequence of "WASD" to execute the corresponding move directions.
+* Implement flood fill algorithm.
 
-#9th January 2022
-*Algorithm done
-*Considering making the E-puck went back to first place after it is done with the algorithm
-
-
-
-
-# Ideas:
-(1) Map detection: Check algorithm for vacuum robot
-* First the robot will explore the area to make a map.
-* Map is known to all robots.
-* Start to explore.
-Problem: 
-* Calculating the distance inside the area.
-* Creating a map:
-  * The proximity of the distance
-
-(2) Image recognition: Using machine learning to replace floor sensors
-* Tapes are set across the map.
-* Robot only able to move on top of tape.
-* The goal is to have 100% tape coverage.
-Problems:
-* Refresh rate of the camera is very low.
+# 9th January 2022
+* Implement class for Map.
+* Able to initialize square map with height and width with border.
+* Implement a function to set symbol for specific grid.
+* Able to initialize map with a string describing map with "/" as new line.
+* Define a Robot class for previous move commands implementation.
+* Robot class contains direction.
+* Algorithm done.

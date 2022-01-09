@@ -1,6 +1,6 @@
 import serial
 import time
-ser = serial.Serial('COM6', 115200, timeout=0)
+ser = serial.Serial('COM11', 115200, timeout=0)
 
 # Speed
 SPEED = 550
@@ -101,6 +101,6 @@ def move_sequence(seq):
             case 'D':
                 step_east()
 
-move_sequence("WDSASDWAASDW")
+# move_sequence("WDSASDWAASDW")
 
-ser.close()
+# ser.close()

@@ -18,6 +18,9 @@ class Robot:
         """Initialize"""
         self.ser = serial.Serial(f'COM{com_number}', 115200, timeout=0)
         self.direction = NORTH
+        self.status = 'IDLE'
+        self.home_coordinate = (0, 0)
+        self.old_coordinate = (0, 0)
 
     def close(self):
         """Close connection with robot"""

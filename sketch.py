@@ -35,7 +35,7 @@ def step_backward():
 def turn_left():
     # Turn left
     ser.write(f'D,{-SPEED},{SPEED}\r\n'.encode())
-    time.sleep(0.58177)
+    time.sleep(0.58775)
     ser.write(bytes(b'D,0,0\r\n'))
 
     # Update direction
@@ -49,7 +49,7 @@ def turn_left():
 def turn_right():
     # Turn right
     ser.write(f'D,{SPEED},{-SPEED}\r\n'.encode())
-    time.sleep(0.58177)
+    time.sleep(0.5875875)
     ser.write(bytes(b'D,0,0\r\n'))
 
     # Update direction
@@ -102,5 +102,9 @@ def move_sequence(seq):
                 step_east()
 
 # move_sequence("WDSASDWAASDW")
+turn_left()
+turn_left()
+turn_left()
+turn_left()
 
-# ser.close()
+ser.close()

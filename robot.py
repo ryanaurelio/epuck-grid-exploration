@@ -27,7 +27,7 @@ class Robot:
         self.ser.close()
 
     def step_forward(self):
-        # Step forward
+        """Step forward"""
         self.ser.write(f'D,{SPEED},{SPEED}\r\n'.encode())
         time.sleep(1)
         self.ser.write(bytes(b'D,0,0\r\n'))
@@ -36,7 +36,7 @@ class Robot:
         time.sleep(0.2)
     
     def step_backward(self):
-        # Step backward
+        """Step backward"""
         self.ser.write(f'D,{-SPEED},{-SPEED}\r\n'.encode())
         time.sleep(1)
         self.ser.write(bytes(b'D,0,0\r\n'))
@@ -45,7 +45,7 @@ class Robot:
         time.sleep(0.2)
     
     def turn_left(self):
-        # Turn left
+        """Turn left"""
         self.ser.write(f'D,{-SPEED},{SPEED}\r\n'.encode())
         time.sleep(0.58177)
         self.ser.write(bytes(b'D,0,0\r\n'))
@@ -58,7 +58,7 @@ class Robot:
         time.sleep(0.2)
 
     def turn_right(self):
-        # Turn right
+        """Turn right"""
         self.ser.write(f'D,{SPEED},{-SPEED}\r\n'.encode())
         time.sleep(0.58177)
         self.ser.write(bytes(b'D,0,0\r\n'))
@@ -71,8 +71,7 @@ class Robot:
         time.sleep(0.2)
 
     def update_direction(self, new_direction):
-        # Fix direction of robot
-        
+        """Fix direction of robot"""
         if self.direction == new_direction:
             return
         elif (self.direction-1)%4 == new_direction:
@@ -84,22 +83,27 @@ class Robot:
             self.turn_left()
     
     def step_north(self):
+        """Step north"""
         self.update_direction(NORTH)
         self.step_forward()
     
     def step_east(self):
+        """Step east"""
         self.update_direction(EAST)
         self.step_forward()
     
     def step_south(self):
+        """Step south"""
         self.update_direction(SOUTH)
         self.step_forward()
     
     def step_west(self):
+        """Step west"""
         self.update_direction(WEST)
         self.step_forward()
     
     def move_sequence(self, seq):
+        """Parse WASD sequence into corresponding move command"""
         for c in seq:
             match c:
                 case 'W':

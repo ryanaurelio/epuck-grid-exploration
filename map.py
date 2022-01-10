@@ -1,7 +1,3 @@
-# from sketch import *
-import numpy as np
-from collections import deque
-
 class Map:
     """Map class"""
     # Available symbols

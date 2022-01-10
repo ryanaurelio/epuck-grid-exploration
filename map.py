@@ -105,6 +105,11 @@ class Map:
     #             q.append((i - 1, j))
 
     def check_map(self):
+        """
+        check if the map has already been fully explored
+        Returns: none
+
+        """
         for i in range(self.height):
             for j in range(self.width):
                 if self.grid[i][j] == '.':
@@ -115,45 +120,82 @@ class Map:
     def dfs(self, new_row, new_column, old_row, old_column, new_symbol):
         """ fill algorithm with dfs"""
 
+        """
+        checks:
+        1. if the row and column is inside map
+        2. if the grid can't be passed through ('x')
+        3. the grid has already been passed ('o')
+        """
         if new_row > self.height or new_row < 0 or new_column > self.width or new_column < 0 or \
                 self.grid[new_row][new_column] == 'x' or self.grid[new_row][new_column] == 'o':
             return
-        elif self.status == 'FINISHED':
-            return
         else:
-            self.move_far(new_row, new_column, old_row, old_column)
+            """
+            move one block according to difference of the x and y axis
+            change the symbol from the e-puck
+            add value to the home_grid (for the backtrack)
+            """
+            self.move(new_row, new_column, old_row, old_column)
             self.grid[old_row][old_column] = new_symbol
             self.grid[new_row][new_column] = 'e'
             self.home_grid[new_row][new_column] = self.home_grid[old_row][old_column] + 1
+
+            """
+            dfs algorithm
+            """
             self.dfs(new_row + 1, new_column, new_row, new_column, new_symbol)
             self.dfs(new_row - 1, new_column, new_row, new_column, new_symbol)
             self.dfs(new_row, new_column + 1, new_row, new_column, new_symbol)
             self.dfs(new_row, new_column - 1, new_row, new_column, new_symbol)
 
+            """
+            changing the old coordinate (useful for backtrack)
+            check if the map is already been thoroughly explored
+            if ja, get back to home (first place)
+            """
             self.old_coordinate = (new_row, new_column)
             if self.check_map():
                 # if the e-puck comes here but the map isnt yet full, the robot is stuck. We do the backtrack here
                 self.status = 'STUCK'
-                self.move_far(new_row, new_column, old_row, old_column)
+                self.move(new_row, new_column, old_row, old_column)
                 self.status = 'WORKING'
             else:
                 # map is done, time to go home
                 self.move_home()
+                self.old_coordinate = self.home_coordinate
                 return
 
     def fill(self, i, j):
+        """
+        algorithm for filling the map.
+        Args:
+            i: x
+            j: y
+            both are useful for getting back to first place.
+
+        Returns: none
+
+        """
         self.home_coordinate = (i, j)
         if self.grid[i][j] == 'x' or self.grid[i][j] == 'o':
             return
         self.dfs(i, j, i, j, 'o')
 
-    def write_movement(self, new_move):
-        self.movement.append(new_move)
 
     def find_another_way(self):
         self.move_home()
 
-    def move(self, move_forward, turn):
+    def write_movement(self, move_forward, turn):
+        """
+        for writing the movement that will be done by the robot.
+        TODO change the "self.movement.append" to the robot movement if the robot is moving in real time
+        Args:
+            move_forward: up = +1 , down = -1
+            turn: left = -1, right  = +1
+
+        Returns: none
+
+        """
         command_move =''
         if move_forward > 0:
             command_move = 'S'
@@ -167,9 +209,20 @@ class Map:
         elif turn < 0:
             command_move = "A"
             turn += 1
-        self.write_movement(command_move)
+        self.movement.append(command_move)
 
-    def move_far(self, new_row, new_column, old_row, old_column):
+    def move(self, new_row, new_column, old_row, old_column):
+        """
+        function for calculating the move of the robot.
+        Args:
+            new_row: row right now
+            new_column: column right now
+            old_row: row one step before
+            old_column: column one step before
+
+        Returns: none
+
+        """
         # case robot stuck
         if self.status == 'STUCK':
             temp = self.home_coordinate
@@ -182,17 +235,25 @@ class Map:
             # anything else
             move_forward = new_row - old_row
             turn = new_column - old_column
-            self.move(move_forward, turn)
+            self.write_movement(move_forward, turn)
 
     def move_home(self):
-        # easy but not efficient, just backtrack
-        if self.status == 'FINISHED':
-            return
+        """
+        algorithm for backtracking movement of the robot.
+        TODO highly inefficient, change to another if there's time
+        Returns: none
+
+        """
+
         i, j = self.old_coordinate
         home_row, home_column = self.home_coordinate
+        """
+        without changing the value of the home_grid[home_row][home_column], sometimes the program will loop indefinitely
+        """
         temp = self.home_grid[home_row][home_column]
         self.home_grid[home_row][home_column] = 0
         self.grid[home_row][home_column] = 'e'
+
         while i != home_row or j != home_column:
             val = [self.home_grid[i + 1][j],
                    self.home_grid[i - 1][j],
@@ -225,7 +286,7 @@ class Map:
                     j -= 1
                     self.grid[i][j] = 'e'
 
-            self.write_movement(direction)
+            self.movement.append(direction)
         self.home_grid[home_row][home_column] = temp
         self.status = 'FINISHED'
 

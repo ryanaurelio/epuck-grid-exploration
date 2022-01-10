@@ -98,3 +98,9 @@ Engineering Notebook
 * Define a Robot class for previous move commands implementation.
 * Robot class contains direction.
 * Algorithm done.
+
+
+# Problems:
+* How to connect the robot to Mercury?
+* Is it allowed to use python to connect all the robots?
+* How to execute script from Mercury?

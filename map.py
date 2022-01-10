@@ -1,6 +1,3 @@
-from sketch import *
-import numpy as np
-
 class Map:
     """Map class"""
     # Available symbols
@@ -160,19 +157,16 @@ class Map:
 # m.set_grid(8, 1, "e")
 # m.fill(8, 1)
 
-m = Map(6, 6)
-m.set_grid(2, 1, 'x')
-m.set_grid(2, 2, 'x')
-m.set_grid(3, 1, 'e')
-m.fill(3, 1)
+# m = Map(6, 6)
+# m.set_grid(2, 1, 'x')
+# m.set_grid(2, 2, 'x')
+# m.set_grid(3, 1, 'e')
+# m.fill(3, 1)
 # m = Map(10, 10)
 # m.set_grid(3, 4, "o")
 # print(m)
 # m = Map(string = "xxxxxxxxxx/x........x/x........x/x...o....x/x........x/x........x/x........x/x........x/x........x/xxxxxxxxxx")
-print(m)
-print(''.join(m.movement))
-print(m.old_coordinate)
-print(m.movement)
-move_sequence(''.join(m.movement))
-
-ser.close()
+# print(m)
+# print(''.join(m.movement))
+# print(m.old_coordinate)
+# print(m.movement)

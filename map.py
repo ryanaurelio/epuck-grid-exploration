@@ -1,3 +1,7 @@
+from collections import deque
+from copy import copy, deepcopy
+
+import numpy as np
 class Map:
     """Map class"""
     # Available symbols
@@ -27,9 +31,10 @@ class Map:
             self.width = width
             self.robots = []
             self.movement = []
-            self.old_coordinate = (0, 0)
+            self.old_coordinate = None
             self.home_coordinate = (0, 0)
             self.status = 'IDLE'
+            self.path = []
 
             # Create a grid with border
             self.grid.append(["x"] * width)
@@ -86,23 +91,146 @@ class Map:
             self.home_grid[row][column] = symbol
         else:
             self.home_grid[row][column] = 0
+
     # bfs
-    # def bfs(self, row, column, new_symbol):
-    #     old_symbol = self.grid[row][column]
-    #     if old_symbol == new_symbol:
-    #         return
+    # def find_new_path(self, row, column):
+    #     # old_symbol = self.grid[row][column]
+    #     # if old_symbol == new_symbol:
+    #     #     return
+    #     path_already_o = []
+    #     path = []
     #     q = deque()
     #     q.append((row, column))
     #     while q:
     #         i, j = q.pop()
-    #         if i > self.width or i < 0 or j > self.height or j < 0 or self.grid[i][j] == 'x' or self.grid[i][j] == 'o':
+    #         if i > self.width or i < 0 or j > self.height or j < 0 or self.grid[i][j] == 'x':
     #             continue
-    #         else:
-    #             self.grid[i][j] = new_symbol
+    #         elif self.grid[i][j] == 'o':
+    #             self.grid[i][j] ='x'
+    #             path_already_o.append((i,j))
+    #             path.append((i,j))
     #             q.append((i, j + 1))
     #             q.append((i, j - 1))
     #             q.append((i + 1, j))
     #             q.append((i - 1, j))
+    #         elif self.grid[i][j] == '.':
+    #             path.append((i,j))
+    #             return path
+    #         else:
+    #             # self.grid[i][j] = new_symbol
+    #             path.append((i,j))
+    #             q.append((i, j + 1))
+    #             q.append((i, j - 1))
+    #             q.append((i + 1, j))
+    #             q.append((i - 1, j))
+    #
+
+    def discard_path(self, path, home_row, home_column):
+        discarded_path = []
+        path.reverse()
+        print(path)
+        for coordinate in path:
+            last_row, last_column = coordinate
+            if (((last_row + 1 == home_row or last_row - 1 == home_row or last_row == home_row) and last_column == home_column) or
+                ((last_column + 1 == home_column or last_column - 1 == home_column or last_column == home_column) and last_row == home_row)):
+                home_row, home_column = coordinate
+                continue
+            discarded_path.append(coordinate)
+        print(discarded_path)
+        for coordinate in discarded_path:
+            path.remove(coordinate)
+        path.reverse()
+        print(path)
+        return path
+
+    def find_new_path(self, new_row, new_column, path = None, map = None):
+        if path is None:
+            path = []
+        if map is None:
+            map = deepcopy(self.grid)
+        """ find new path algorithm with dfs"""
+
+        """
+        checks:
+        1. if the path is finished
+        2. if it is a new path
+        3. if overflow in height or width
+        4. if it is already passed by another epuck
+        """
+        if self.path:
+            return
+        if self.grid[new_row][new_column] == '.':
+            path.append((new_row, new_column))
+            home_row, home_column = path[-1]
+            path = self.discard_path(path, home_row, home_column)
+            self.path = path
+            self.grid = map
+            return
+        if new_row > self.height or new_row < 0 or new_column > self.width or new_column < 0 or \
+                self.grid[new_row][new_column] == 'x' or (new_row, new_column) in path:
+            return
+        else:
+            if self.grid[new_row][new_column] == 'o':
+                self.grid[new_row][new_column] = 'x'
+
+            """
+            dfs algorithm
+            """
+            path.append((new_row, new_column))
+            newthing = []
+            newthing.append((self.grid[new_row + 1][new_column], new_row + 1, new_column))
+            newthing.append((self.grid[new_row - 1][new_column], new_row - 1, new_column))
+            newthing.append((self.grid[new_row][new_column + 1], new_row, new_column + 1))
+            newthing.append((self.grid[new_row][new_column - 1], new_row, new_column - 1))
+            newthing.sort()
+            for thing in newthing:
+                sign, row, col = thing
+                self.find_new_path(row, col, path, map)
+
+
+    def find_home(self, new_row, new_column, old_row = None, old_column = None, path = None, map = None):
+        if path is None:
+            path = []
+        if map is None:
+            map = deepcopy(self.grid)
+        if old_row is None:
+            old_row = new_row
+        if old_column is None:
+            old_column = new_column
+        """ find new path algorithm with dfs"""
+        """
+        checks:
+        1. if the path is finished
+        2. if it is a new path
+        3. if overflow in height or width
+        4. if it is already passed by another epuck
+        """
+        if self.path:
+            return
+
+        home_row, home_column = self.home_coordinate
+        if new_row == home_row and new_column == home_column:
+            path = self.discard_path(path, home_row, home_column)
+            path.append((new_row, new_column))
+            self.path = path
+            self.grid = map
+            return
+
+        if new_row > self.height or new_row < 0 or new_column > self.width or new_column < 0 or \
+                self.grid[new_row][new_column] == 'x' or (new_row, new_column) in path:
+            return
+        else:
+            if self.grid[new_row][new_column] == 'o' or self.grid[new_row][new_column] == '.':
+                self.grid[new_row][new_column] = 'x'
+            """
+            dfs algorithm
+            """
+            path.append((new_row, new_column))
+            self.find_home(new_row + 1, new_column, new_row, new_column, path, map)
+            self.find_home(new_row - 1, new_column, new_row, new_column, path, map)
+            self.find_home(new_row, new_column + 1, new_row, new_column, path, map)
+            self.find_home(new_row, new_column - 1, new_row, new_column, path, map)
+
 
     def check_map(self):
         """
@@ -113,8 +241,8 @@ class Map:
         for i in range(self.height):
             for j in range(self.width):
                 if self.grid[i][j] == '.':
-                    return True
-        return False
+                    return False
+        return True
 
 
     def dfs(self, new_row, new_column, old_row, old_column, new_symbol):
@@ -126,8 +254,28 @@ class Map:
         2. if the grid can't be passed through ('x')
         3. the grid has already been passed ('o')
         """
+        # todo change to something more elegant hehe (self.status bad)
+        if self.check_map() and not self.status == 'HOME':
+            self.find_home(old_row, old_column)
+            print(self.path[1:])
+            for path in self.path[1:]:
+                row, column = path
+                self.grid[old_row][old_column] = new_symbol
+                self.grid[row][column] = 'e'
+                self.write_movement(row - old_row, column - old_column)
+                old_row, old_column = path
+            self.path = []
+            self.status = "HOME"
+            return
+
+        if self.old_coordinate:
+            a, b = self.old_coordinate
+            if a != new_row or b != new_column:
+                return
+            self.old_coordinate = None
+
         if new_row > self.height or new_row < 0 or new_column > self.width or new_column < 0 or \
-                self.grid[new_row][new_column] == 'x' or self.grid[new_row][new_column] == 'o':
+                self.grid[new_row][new_column] == 'x' or self.grid[new_row][new_column] == 'o' or self.status == 'HOME':
             return
         else:
             """
@@ -138,8 +286,8 @@ class Map:
             self.move(new_row, new_column, old_row, old_column)
             self.grid[old_row][old_column] = new_symbol
             self.grid[new_row][new_column] = 'e'
-            self.home_grid[new_row][new_column] = self.home_grid[old_row][old_column] + 1
 
+            self.path = []
             """
             dfs algorithm
             """
@@ -148,22 +296,20 @@ class Map:
             self.dfs(new_row, new_column + 1, new_row, new_column, new_symbol)
             self.dfs(new_row, new_column - 1, new_row, new_column, new_symbol)
 
-            """
-            changing the old coordinate (useful for backtrack)
-            check if the map is already been thoroughly explored
-            if ja, get back to home (first place)
-            """
-            self.old_coordinate = (new_row, new_column)
-            if self.check_map():
-                # if the e-puck comes here but the map isnt yet full, the robot is stuck. We do the backtrack here
-                self.status = 'STUCK'
-                self.move(new_row, new_column, old_row, old_column)
-                self.status = 'WORKING'
-            else:
-                # map is done, time to go home
-                self.move_home()
-                self.old_coordinate = self.home_coordinate
-                return
+            # in case the epuck is stuck.
+        # todo change to something more elegant hehe (self.path here bad)
+            if not self.check_map() and not self.path:
+                self.find_new_path(new_row, new_column)
+                self.old_coordinate = self.path[-1]
+                old_row = new_row
+                old_column = new_column
+                for path in self.path[:-1]:
+                    row, column = path
+                    self.grid[old_row][old_column] = new_symbol
+                    self.grid[row][column] = 'e'
+                    self.write_movement(row - old_row, column - old_column)
+                    old_row, old_column = path
+
 
     def fill(self, i, j):
         """
@@ -180,10 +326,6 @@ class Map:
         if self.grid[i][j] == 'x' or self.grid[i][j] == 'o':
             return
         self.dfs(i, j, i, j, 'o')
-
-
-    def find_another_way(self):
-        self.move_home()
 
     def write_movement(self, move_forward, turn):
         """
@@ -223,69 +365,72 @@ class Map:
         Returns: none
 
         """
-        # case robot stuck
-        if self.status == 'STUCK':
-            temp = self.home_coordinate
-            i, j = self.old_coordinate
-            self.home_coordinate = (old_row, old_column)
-            self.find_another_way()
-            self.grid[i][j] = 'o'
-            self.home_coordinate = temp
-        else:
-            # anything else
-            move_forward = new_row - old_row
-            turn = new_column - old_column
-            self.write_movement(move_forward, turn)
+        move_forward = new_row - old_row
+        turn = new_column - old_column
+        self.write_movement(move_forward, turn)
 
-    def move_home(self):
-        """
-        algorithm for backtracking movement of the robot.
-        TODO highly inefficient, change to another if there's time
-        Returns: none
 
-        """
 
-        i, j = self.old_coordinate
-        home_row, home_column = self.home_coordinate
-        """
-        without changing the value of the home_grid[home_row][home_column], sometimes the program will loop indefinitely
-        """
-        temp = self.home_grid[home_row][home_column]
-        self.home_grid[home_row][home_column] = 0
-        self.grid[home_row][home_column] = 'e'
+# Map
+# m = Map(6, 6)
+# m.set_grid(3, 2, 'x')
+# m.set_grid(3, 3, 'x')
+# m.set_grid(3, 4, 'x')
+# m.set_grid(4, 1, 'e')
+# print(m)
+#
+# # Explore
+# m.fill(4, 1)
 
-        while i != home_row or j != home_column:
-            val = [self.home_grid[i + 1][j],
-                   self.home_grid[i - 1][j],
-                   self.home_grid[i][j + 1],
-                   self.home_grid[i][j - 1]
-                   ]
-            val = [1000000 if e =='x' else e for e in val]
+# m = Map(5,10)
+# m.set_grid(1, 2, 'x')
+# m.set_grid(1, 3, 'x')
+# m.set_grid(2, 1, 'e')
+# m.fill(2,1)
 
-            index = val.index(min(val)) + 1
-            direction = ''
-            match index:
-                case 1:
-                    direction = 'S'
-                    self.grid[i][j] = 'o'
-                    i += 1
-                    self.grid[i][j] = 'e'
-                case 2:
-                    direction = 'W'
-                    self.grid[i][j] = 'o'
-                    i -= 1
-                    self.grid[i][j] = 'e'
-                case 3:
-                    direction = 'D'
-                    self.grid[i][j] = 'o'
-                    j += 1
-                    self.grid[i][j] = 'e'
-                case 4:
-                    direction = 'A'
-                    self.grid[i][j] = 'o'
-                    j -= 1
-                    self.grid[i][j] = 'e'
+# m = Map(4,4)
+# m.set_grid(1,2, 'x')
+# m.set_grid(2,1, 'e')
+# print(m)
+# m.fill(2,1)
 
-            self.movement.append(direction)
-        self.home_grid[home_row][home_column] = temp
-        self.status = 'FINISHED'
+m = Map(10, 10)
+m.set_grid(4, 6, 'x')
+m.set_grid(4, 7, 'x')
+m.set_grid(4, 8, 'x')
+m.set_grid(4, 5, 'o')
+m.set_grid(4, 4, 'o')
+m.set_grid(4, 3, 'o')
+m.set_grid(5, 5, 'o')
+m.set_grid(5, 3, 'o')
+m.set_grid(6, 5, 'o')
+m.set_grid(6, 4, 'o')
+m.set_grid(6, 3, 'o')
+m.set_grid(4, 4, "e")
+# m.set_grid(1, 1, "e")
+m.fill(4, 4)
+# m.fill(1, 1)
+
+# m = Map(6, 6)
+# m.set_grid(2, 1, 'x')
+# m.set_grid(2, 2, 'x')
+# m.set_grid(3, 1, 'e')
+# m.fill(3, 1)
+
+# m = Map(6, 6)
+# m.set_grid(2, 3, 'x')
+# m.set_grid(2, 2, 'x')
+# m.set_grid(3, 1, 'e')
+# m.fill(3, 1)
+# m = Map(10, 10)
+# m.set_grid(3, 4, "o")
+# print(m)
+# m = Map(string = "xxxxxxxxxx/x........x/x........x/x...o....x/x........x/x........x/x........x/x........x/x........x/xxxxxxxxxx")
+print(m)
+print(''.join(m.movement))
+print(m.old_coordinate)
+print(m.movement)
+# move_sequence(''.join(m.movement))
+print(m.home_grid)
+
+# ser.close()

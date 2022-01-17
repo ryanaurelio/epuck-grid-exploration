@@ -1,7 +1,5 @@
-from collections import deque
-from copy import copy, deepcopy
+from copy import deepcopy
 
-import numpy as np
 class Map:
     """Map class"""
     # Available symbols
@@ -26,7 +24,6 @@ class Map:
 
             # Initialize
             self.grid = []
-            self.home_grid = []
             self.height = height
             self.width = width
             self.robots = []
@@ -41,11 +38,6 @@ class Map:
             for _ in range(height-2):
                 self.grid.append(["x"] + ["."]*(width-2) + ["x"])
             self.grid.append(["x"] * width)
-
-            self.home_grid.append(['x']* width)
-            for _ in range(height - 2):
-                self.home_grid.append(["x"] + [0] * (width - 2) + ["x"])
-            self.home_grid.append(["x"] * width)
 
         else:
             # With string
@@ -87,10 +79,6 @@ class Map:
         if symbol not in self.symbols:
             raise ValueError("Unknown symbol.\nx = Obstacle / Wall\n. = Unexplored\no = Explored\ne = e-puck robot\n")
         self.grid[row][column] = symbol
-        if symbol == 'x':
-            self.home_grid[row][column] = symbol
-        else:
-            self.home_grid[row][column] = 0
 
     # bfs
     # def find_new_path(self, row, column):
@@ -177,13 +165,12 @@ class Map:
             dfs algorithm
             """
             path.append((new_row, new_column))
-            newthing = []
-            newthing.append((self.grid[new_row + 1][new_column], new_row + 1, new_column))
-            newthing.append((self.grid[new_row - 1][new_column], new_row - 1, new_column))
-            newthing.append((self.grid[new_row][new_column + 1], new_row, new_column + 1))
-            newthing.append((self.grid[new_row][new_column - 1], new_row, new_column - 1))
-            newthing.sort()
-            for thing in newthing:
+            direction_sign = [(self.grid[new_row + 1][new_column], new_row + 1, new_column),
+                              (self.grid[new_row - 1][new_column], new_row - 1, new_column),
+                              (self.grid[new_row][new_column + 1], new_row, new_column + 1),
+                              (self.grid[new_row][new_column - 1], new_row, new_column - 1)]
+            direction_sign.sort()
+            for thing in direction_sign:
                 sign, row, col = thing
                 self.find_new_path(row, col, path, map)
 

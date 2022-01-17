@@ -99,8 +99,17 @@ Engineering Notebook
 * Robot class contains direction.
 * Algorithm done.
 
+# 10th January 2022
+* Idea: using a pathfinder to find the nearest unexplored area.
+
+# 16th January 2022
+* Implement main class to run the implemented functions.
+* Start to implement the pathfinder algorithm.
+
+# 17th January 2022
+* Completed the algorithm for pathfinder.
+* Implement the algorithm for single bot exploration.
+
 
 # Problems:
-* How to connect the robot to Mercury?
-* Is it allowed to use python to connect all the robots?
-* How to execute script from Mercury?
+* Is it allowed to use Python as the "server" to connect all the robots?

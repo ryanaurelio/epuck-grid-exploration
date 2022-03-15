@@ -27,6 +27,11 @@ void set_my_id(uint id);
 void free_robots(node_t ** head);
 int get_my_id(void);
 int can_work(void);
+int can_free(void);
+void go_work(void);
+void go_free(void);
+void go_done(void);
+void init_robots(void);
 
 #ifdef __cplusplus
 }

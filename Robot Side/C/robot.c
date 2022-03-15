@@ -18,11 +18,13 @@ typedef struct node{
 
 node_t* freeRobots = NULL;
 node_t* workingRobots = NULL;
+node_t* doneRobots = NULL;
 int ID;
 int zero_in_free = 1;
 int zero_in_working = 1;
+int zero_in_done = 1;
 
-void init_robots() {
+void init_robots(void) {
     Robot robot;
     robot.id = 0;
     robot.status = FREE;
@@ -32,6 +34,9 @@ void init_robots() {
     workingRobots = (node_t *) malloc(sizeof(node_t));
     workingRobots->next = NULL;
     workingRobots -> robot = robot;
+    doneRobots = (node_t *) malloc(sizeof(node_t));
+    doneRobots->next = NULL;
+    doneRobots -> robot = robot;
 }
 
 Robot robots_peek(node_t ** head) {
@@ -55,12 +60,15 @@ void robots_push(node_t * head, Robot val) {
 
 }
 
-void check_list() {
+void check_list(void) {
     if(robots_peek(&freeRobots).id == 0)
         zero_in_free = 1;
 
     if(robots_peek(&workingRobots).id == 0)
         zero_in_working = 1;
+
+    if(robots_peek(&doneRobots).id == 0)
+    	zero_in_done = 1;
 }
 
 
@@ -118,23 +126,39 @@ int get_my_id(void) {
 }
 
 int can_work(void) {
-    return robots_peek(&workingRobots).id == ID;
+    if(robots_peek(&freeRobots).id == 0) {
+    	node_t * next_node = freeRobots -> next;
+    	return robots_peek(&next_node).id == ID;
+    }
+    return robots_peek(&freeRobots).id == ID;
+
+}
+int can_free(void) {
+	if(robots_peek(&doneRobots).id == 0) {
+		node_t * next_node = doneRobots -> next;
+		return robots_peek(&next_node).id == ID;
+	}
+    return robots_peek(&doneRobots).id == ID;
 }
 
 //assuming that all robots hear the same sound every time.
-void go_work() {
-	if (id == NULL) {
-		id = ID;
-	}
+void go_work(void) {
     robots_push(workingRobots, robots_pop(&freeRobots));
     if(zero_in_working) {
         robots_pop(&workingRobots);
         zero_in_working = 0;
     }
 }
+void go_done(void) {
+    robots_push(doneRobots, robots_pop(&workingRobots));
+    if(zero_in_done) {
+        robots_pop(&doneRobots);
+        zero_in_done = 0;
+    }
 
-void go_free() {
-    robots_push(freeRobots, robots_pop(&workingRobots));
+}
+void go_free(void) {
+    robots_push(freeRobots, robots_pop(&doneRobots));
     if(zero_in_free) {
         robots_pop(&freeRobots);
         zero_in_free = 0;

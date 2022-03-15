@@ -18,8 +18,9 @@ Robot pop_robot_list(robot_node ** head) {
     if (is_robot_list_empty(*head)) {
         return (*head)->robot;
     } else if ((*head)->next == NULL) {
+        Robot r = (*head)->robot;
         new_robot_list(*head);
-        return (*head)->robot;
+        return r;
     } else {
         Robot r = (*head)->robot;
 

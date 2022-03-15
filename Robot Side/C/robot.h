@@ -14,4 +14,9 @@ void new_robot(int id);
 Robot robots_peek(robot_node * head);
 void set_my_id(int id);
 
+// Test
+robot_node * get_free();
+robot_node * get_work();
+robot_node * get_done();
+
 #endif

@@ -50,7 +50,10 @@ int can_free(void) {
 
 //assuming that all robots hear the same sound every time.
 void go_work(void) {
-    push_robot_list(workingRobots, pop_robot_list(&freeRobots));
+    print_robot_list(freeRobots);
+    Robot r = pop_robot_list(&freeRobots);
+    printf("%d\n", r.id);
+    push_robot_list(workingRobots, r);
 }
 
 void go_done(void) {
@@ -59,4 +62,17 @@ void go_done(void) {
 
 void go_free(void) {
     push_robot_list(freeRobots, pop_robot_list(&doneRobots));
+}
+
+// Test
+robot_node * get_free() {
+    return freeRobots;
+}
+
+robot_node * get_work() {
+    return workingRobots;
+}
+
+robot_node * get_done() {
+    return doneRobots;
 }

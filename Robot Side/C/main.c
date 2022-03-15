@@ -108,6 +108,11 @@ int main() {
     print_coordinate_list(nearUnexplored);
     printf("\n");
     print_coordinate_list(unexplored);
+    printf("\n");
+
+    // Parse path
+    char * path = parse_path(nearUnexplored);
+    printf("%s\n", path);
 
     return 0;
 }

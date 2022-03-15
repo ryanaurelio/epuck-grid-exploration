@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "map.h"
 #include "types.h"
@@ -135,7 +136,30 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
 }
 
 char * parse_path(coordinate_node * path) {
-    // TODO: Implement
-//    char * seq;
-//    for (int i = 0; i < path.s)
+    static char seq [] = "";
+
+    coordinate_node * current = path;
+
+    while (current->next != NULL) {
+
+        int pr = current->val.x;
+        int pc = current->val.y;
+        int qr = current->next->val.x;
+        int qc = current->next->val.y;
+
+        int r = qr - pr;
+        int c = qc - pc;
+
+        if (r == -1)
+            strcat(seq, "W");
+        else if (c == -1)
+            strcat(seq, "A");
+        else if (r == 1)
+            strcat(seq, "S");
+        else if (c == 1)
+            strcat(seq, "D");
+
+        current = current->next;
+    }
+    return seq;
 }

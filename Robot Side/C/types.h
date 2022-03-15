@@ -8,7 +8,7 @@
 
 // Robot list
 typedef struct r_node {
-    Robot val;
+    Robot robot;
     struct r_node * next;
 } robot_node;
 

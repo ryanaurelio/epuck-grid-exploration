@@ -2,7 +2,7 @@
 
 // Robot list
 int is_robot_list_empty(robot_node * head) {
-    return head->val.id == 0 && head->val.status == FREE;
+    return head->robot.id == 0 && head->robot.status == FREE;
 }
 
 void new_robot_list(robot_node * head) {
@@ -10,18 +10,18 @@ void new_robot_list(robot_node * head) {
     r.id = 0;
     r.status = FREE;
 
-    head->val = r;
+    head->robot = r;
     head->next = NULL;
 }
 
 Robot pop_robot_list(robot_node ** head) {
     if (is_robot_list_empty(*head)) {
-        return (*head)->val;
+        return (*head)->robot;
     } else if ((*head)->next == NULL) {
         new_robot_list(*head);
-        return (*head)->val;
+        return (*head)->robot;
     } else {
-        Robot r = (*head)->val;
+        Robot r = (*head)->robot;
 
         robot_node * next_node = NULL;
         next_node = (*head)->next;
@@ -38,7 +38,7 @@ void print_robot_list(robot_node * head) {
     robot_node * current = head;
 
     while (current != NULL) {
-        printf("%d, ", current->val.id);
+        printf("%d, ", current->robot.id);
         current = current->next;
     }
     printf("]");
@@ -46,7 +46,7 @@ void print_robot_list(robot_node * head) {
 
 void push_robot_list(robot_node * head, Robot val) {
     if (is_robot_list_empty(head))
-        head->val = val;
+        head->robot = val;
     else {
         robot_node *current = head;
         while (current->next != NULL) {
@@ -54,7 +54,7 @@ void push_robot_list(robot_node * head, Robot val) {
         }
 
         current->next = (robot_node *) malloc(sizeof(robot_node));
-        current->next->val = val;
+        current->next->robot = val;
         current->next->next = NULL;
     }
 }

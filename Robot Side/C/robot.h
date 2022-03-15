@@ -15,23 +15,15 @@ typedef struct {
     status status;
 } Robot;
 
-typedef struct node{
-	Robot robot;
-	struct node* next;
-} node_t;
-
-void robots_push(node_t * head, Robot val);
-Robot robots_pop(node_t ** head);
+int can_free(void);
+int can_work(void);
+int get_my_id(void);
+void go_done(void);
+void go_free(void);
+void go_work(void);
+void init_robots(void);
 void new_robot(int id);
 void set_my_id(int id);
-void free_robots(node_t ** head);
-int get_my_id(void);
-int can_work(void);
-int can_free(void);
-void go_work(void);
-void go_free(void);
-void go_done(void);
-void init_robots(void);
 
 #ifdef __cplusplus
 }

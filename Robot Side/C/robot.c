@@ -1,120 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef enum{
-    WORKING,
-    FREE
-} status;
+#include "robot.h"
+#include "types.h"
 
-typedef struct {
-    int id;
-    status status;
-} Robot;
+robot_node* freeRobots;
+robot_node* workingRobots;
+robot_node* doneRobots;
 
-typedef struct node{
-    Robot robot;
-    struct node* next;
-} node_t;
-
-node_t* freeRobots = NULL;
-node_t* workingRobots = NULL;
-node_t* doneRobots = NULL;
 int ID;
-int zero_in_free = 1;
-int zero_in_working = 1;
-int zero_in_done = 1;
 
 void init_robots(void) {
-    Robot robot;
-    robot.id = 0;
-    robot.status = FREE;
-    freeRobots = (node_t *) malloc(sizeof(node_t));
-    freeRobots->robot = robot;
-    freeRobots->next = NULL;
-    workingRobots = (node_t *) malloc(sizeof(node_t));
-    workingRobots->next = NULL;
-    workingRobots -> robot = robot;
-    doneRobots = (node_t *) malloc(sizeof(node_t));
-    doneRobots->next = NULL;
-    doneRobots -> robot = robot;
+    freeRobots = (robot_node *) malloc(sizeof(robot_node));
+    new_robot_list(freeRobots);
+
+    workingRobots = (robot_node *) malloc(sizeof(robot_node));
+    new_robot_list(workingRobots);
+
+    doneRobots = (robot_node *) malloc(sizeof(robot_node));
+    new_robot_list(doneRobots);
 }
 
-Robot robots_peek(node_t ** head) {
-
-//    if (*head == NULL) {
-//        return -1;
-//    }
-    return ((*head)->robot);
-}
-
-void robots_push(node_t * head, Robot val) {
-    node_t * current = head;
-
-    while (current->next != NULL) {
-        current = head->next;
-    }
-    /* now we can add a new variable */
-    current->next = (node_t *) malloc(sizeof(node_t));
-    current->next->robot = val;
-    current->next->next = NULL;
-
-}
-
-void check_list(void) {
-    if(robots_peek(&freeRobots).id == 0)
-        zero_in_free = 1;
-
-    if(robots_peek(&workingRobots).id == 0)
-        zero_in_working = 1;
-
-    if(robots_peek(&doneRobots).id == 0)
-    	zero_in_done = 1;
-}
-
-
-Robot robots_pop(node_t ** head) {
-    Robot retval;
-    node_t * next_node = NULL;
-
-//    if (*head == NULL) {
-//        return -1;
-//    }
-
-    next_node = (*head)->next;
-    //this was a buffer so that there r no segmentation leak. If better fix is found, feel free to change
-    //this was used to add buffer
-    if (next_node == NULL) {
-        Robot robot;
-        robot.id = 0;
-        robots_push(*head, robot);
-        next_node = (*head)->next;
-    }
-    retval = (*head)->robot;
-    free(*head);
-    *head = next_node;
-    check_list();
-    return retval;
-}
-
-void free_robots(node_t ** head) {
-    node_t * next_node = NULL;
-    next_node = (*head) -> next;
-    while(next_node != NULL) {
-        free(*head);
-        *head = next_node;
-        next_node = (*head) -> next;
-    }
+Robot robots_peek(robot_node * head) {
+    return head->robot;
 }
 
 void new_robot(int id) {
     Robot robot;
     robot.id = id;
     robot.status = FREE;
-    robots_push(freeRobots, robot);
-    if(zero_in_free) {
-        robots_pop(&freeRobots);
-        zero_in_free = 0;
-    }
+    push_robot_list(freeRobots, robot);
 }
 
 void set_my_id(int id) {
@@ -126,41 +41,22 @@ int get_my_id(void) {
 }
 
 int can_work(void) {
-    if(robots_peek(&freeRobots).id == 0) {
-    	node_t * next_node = freeRobots -> next;
-    	return robots_peek(&next_node).id == ID;
-    }
-    return robots_peek(&freeRobots).id == ID;
-
+    return robots_peek(freeRobots).id == ID;
 }
+
 int can_free(void) {
-	if(robots_peek(&doneRobots).id == 0) {
-		node_t * next_node = doneRobots -> next;
-		return robots_peek(&next_node).id == ID;
-	}
-    return robots_peek(&doneRobots).id == ID;
+    return robots_peek(doneRobots).id == ID;
 }
 
 //assuming that all robots hear the same sound every time.
 void go_work(void) {
-    robots_push(workingRobots, robots_pop(&freeRobots));
-    if(zero_in_working) {
-        robots_pop(&workingRobots);
-        zero_in_working = 0;
-    }
+    push_robot_list(workingRobots, pop_robot_list(&freeRobots));
 }
-void go_done(void) {
-    robots_push(doneRobots, robots_pop(&workingRobots));
-    if(zero_in_done) {
-        robots_pop(&doneRobots);
-        zero_in_done = 0;
-    }
 
+void go_done(void) {
+    push_robot_list(doneRobots, pop_robot_list(&workingRobots));
 }
+
 void go_free(void) {
-    robots_push(freeRobots, robots_pop(&doneRobots));
-    if(zero_in_free) {
-        robots_pop(&freeRobots);
-        zero_in_free = 0;
-    }
+    push_robot_list(freeRobots, pop_robot_list(&doneRobots));
 }

@@ -131,12 +131,11 @@ class Robot:
         :param seq: WASD sequence to move e-puck
         """
         for c in seq:
-            match c:
-                case 'W':
-                    self.step_north()
-                case 'A':
-                    self.step_west()
-                case 'S':
-                    self.step_south()
-                case 'D':
-                    self.step_east()
+            if c == 'W':
+                self.step_north()
+            elif c == 'A':
+                self.step_west()
+            elif c == 'S':
+                self.step_south()
+            elif c == 'D':
+                self.step_east()

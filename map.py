@@ -74,7 +74,7 @@ class Map:
 
     def set_grid(self, row, column, symbol):
         """Set a status for a specific grid"""
-        if row == 0 or row == self.width - 1 or column == 0 or column == self.height - 1:
+        if row == 0 or row == self.height - 1 or column == 0 or column == self.width - 1:
             raise ValueError("Can't modify map's border.")
         if symbol not in self.symbols:
             raise ValueError("Unknown symbol.\nx = Obstacle / Wall\n. = Unexplored\no = Explored\ne = e-puck robot\n")

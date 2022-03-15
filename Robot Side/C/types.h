@@ -4,7 +4,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "robot.h";
+
+// Robot
+typedef enum{
+    WORKING,
+    FREE
+} status;
+
+typedef struct {
+    int id;
+    status status;
+} Robot;
 
 // Robot list
 typedef struct r_node {

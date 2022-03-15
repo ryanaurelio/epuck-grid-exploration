@@ -11,7 +11,7 @@ typedef enum{
 } status;
 
 typedef struct {
-    uint id;
+    int id;
     status status;
 } Robot;
 
@@ -22,8 +22,8 @@ typedef struct node{
 
 void robots_push(node_t * head, Robot val);
 Robot robots_pop(node_t ** head);
-void new_robot(uint id);
-void set_my_id(uint id);
+void new_robot(int id);
+void set_my_id(int id);
 void free_robots(node_t ** head);
 int get_my_id(void);
 int can_work(void);

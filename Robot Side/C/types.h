@@ -4,6 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "robot.h";
+
+// Robot list
+typedef struct r_node {
+    Robot val;
+    struct r_node * next;
+} robot_node;
+
+int is_robot_list_empty(robot_node * head);
+void new_robot_list(robot_node * head);
+Robot pop_robot_list(robot_node ** head);
+void print_robot_list(robot_node * head);
+void push_robot_list(robot_node * head, Robot val);
+
 // Coordinate
 typedef struct {
     int x;

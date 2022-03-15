@@ -114,5 +114,30 @@ int main() {
     char * path = parse_path(nearUnexplored);
     printf("%s\n", path);
 
+    // Robot list
+    robot_node * r;
+    r = (robot_node *) malloc(sizeof(robot_node));
+    new_robot_list(r);
+    print_robot_list(r);
+    printf("\n");
+
+    Robot r1;
+    r1.id = 1;
+    Robot r2;
+    r2.id = 2;
+    push_robot_list(r, r1);
+    push_robot_list(r, r2);
+
+    print_robot_list(r);
+    printf("\n");
+
+    Robot rt1 = pop_robot_list(&r);
+    print_robot_list(r);
+    printf("\n");
+
+    Robot rt2 = pop_robot_list(&r);
+    print_robot_list(r);
+    printf("\n");
+
     return 0;
 }

@@ -1,5 +1,64 @@
 #include "types.h"
 
+// Robot list
+int is_robot_list_empty(robot_node * head) {
+    return head->val.id == 0 && head->val.status == FREE;
+}
+
+void new_robot_list(robot_node * head) {
+    Robot r;
+    r.id = 0;
+    r.status = FREE;
+
+    head->val = r;
+    head->next = NULL;
+}
+
+Robot pop_robot_list(robot_node ** head) {
+    if (is_robot_list_empty(*head)) {
+        return (*head)->val;
+    } else if ((*head)->next == NULL) {
+        new_robot_list(*head);
+        return (*head)->val;
+    } else {
+        Robot r = (*head)->val;
+
+        robot_node * next_node = NULL;
+        next_node = (*head)->next;
+        free(*head);
+        *head = next_node;
+
+        return r;
+    }
+}
+
+void print_robot_list(robot_node * head) {
+    printf("[");
+
+    robot_node * current = head;
+
+    while (current != NULL) {
+        printf("%d, ", current->val.id);
+        current = current->next;
+    }
+    printf("]");
+}
+
+void push_robot_list(robot_node * head, Robot val) {
+    if (is_robot_list_empty(head))
+        head->val = val;
+    else {
+        robot_node *current = head;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+
+        current->next = (robot_node *) malloc(sizeof(robot_node));
+        current->next->val = val;
+        current->next->next = NULL;
+    }
+}
+
 // Coordinate
 int compare_coordinate(Coordinate * c1, Coordinate * c2) {
     return c1->x == c2->x && c1->y == c2->y;

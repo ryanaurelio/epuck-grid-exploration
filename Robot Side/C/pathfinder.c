@@ -188,11 +188,13 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     }
 }
 
-void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinate t) {
+void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
     char idc = (char) id;
 
     for (int i = 0; i < HEIGHT; i++)
-        for (int j = 0; j < WIDTH; j++)
-            if (vmap[i][j] == idc)
+        for (int j = 0; j < WIDTH; j++) {
+            Coordinate c = {i, j};
+            if (vmap[i][j] == idc && !compare_coordinate(&c, &target))
                 vmap[i][j] = 'o';
+        }
 }

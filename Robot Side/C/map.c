@@ -28,6 +28,7 @@ void setExplored(char vmap[HEIGHT][WIDTH], int x, int y) {
     vmap[x][y] = 'o';
 }
 
-void setRobot(char vmap[HEIGHT][WIDTH], int x, int y) {
-    vmap[x][y] = 'e';
+void setRobot(char vmap[HEIGHT][WIDTH], int id, int x, int y) {
+    char idc = (char) id;
+    vmap[x][y] = idc;
 }

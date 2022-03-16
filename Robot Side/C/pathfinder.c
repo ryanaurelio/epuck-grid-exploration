@@ -163,3 +163,15 @@ char * parse_path(coordinate_node * path) {
     }
     return seq;
 }
+
+coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t) {
+    coordinate_node * unexplored;
+    unexplored = (coordinate_node *) malloc(sizeof(coordinate_node));
+    unexplored->val = t;
+    unexplored->next = NULL;
+
+    int row = s.x;
+    int column = s.y;
+
+    return get_nearest_unexplored(vmap, unexplored, row, column);
+}

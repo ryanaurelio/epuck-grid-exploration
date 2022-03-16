@@ -2,13 +2,13 @@
 
 // Robot list
 int is_robot_list_empty(robot_node * head) {
-    return head->robot.id == 0 && head->robot.status == FREE;
+    return head->robot.id == 0;
 }
 
 void new_robot_list(robot_node * head) {
     Robot r;
     r.id = 0;
-    r.status = FREE;
+
 
     head->robot = r;
     head->next = NULL;

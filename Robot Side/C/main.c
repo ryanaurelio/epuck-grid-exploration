@@ -66,6 +66,8 @@ int canBroadcast = 0;
 uint id = 1;
 char vmap[HEIGHT][WIDTH];
 Coordinate * my_coordinate;
+coordinate_node * unexplored;
+
 
 int listen(void) {
 	// Detect frequencies with FFT and playback tones based on the distance from ToF.
@@ -83,7 +85,7 @@ int listen(void) {
 
 void broadcast(int number) {
     chThdSleepMilliseconds(100);
-	dac_play(((number + 1) * 100) + 1000);
+	dac_play(((number + 1) * 100) + 1050);
     chThdSleepMilliseconds(700);
     dac_stop();
     chThdSleepMilliseconds(300);
@@ -108,7 +110,6 @@ int checkBroadcast(int number) {
 static THD_FUNCTION(working_thd, arg) {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
-	uint16_t rgb_from_freq = 0;
 
     while(1) {
     	if(!connectPhase) {
@@ -117,10 +118,10 @@ static THD_FUNCTION(working_thd, arg) {
 				chThdSleepMilliseconds(500);
 
 				set_rgb_led(LED2, 0, 0 ,1);
-				Coordinate nearestCoordinate;
+				Coordinate * nearestCoordinate;
 				go_work();
 				//ambil last di types.h
-				nearestCoordinate = (get_nearest_unexplored_wrapper(vmap, my_coordinate->x , my_coordinate->y)) -> val;
+				nearestCoordinate = coordinate_list_last(get_nearest_unexplored(vmap, unexplored, my_coordinate -> x, my_coordinate -> y));
 
 
 				//broadcast id and coordinate
@@ -128,36 +129,51 @@ static THD_FUNCTION(working_thd, arg) {
 					set_led(LED1, 1);
 				if(checkBroadcast(2)) {
 					broadcast(get_my_id());
-					broadcast((int)nearestCoordinate.x/10);
-					broadcast((int)nearestCoordinate.x%10);
-					broadcast((int)nearestCoordinate.y/10);
-					broadcast((int)nearestCoordinate.y%10);
+					broadcast((int)nearestCoordinate -> x/10);
+					broadcast((int)nearestCoordinate -> x%10);
+					broadcast((int)nearestCoordinate -> y/10);
+					broadcast((int)nearestCoordinate -> y%10);
 				    canBroadcast = 0;
 				    chThdSleepMilliseconds(100);
-					my_coordinate -> x = nearestCoordinate.x;
-					my_coordinate -> y =  nearestCoordinate.y;
+				    move_robot_in_map(vmap, get_my_id(), *my_coordinate, *nearestCoordinate);
+					my_coordinate -> x = nearestCoordinate -> x;
+					my_coordinate -> y =  nearestCoordinate -> y;
 				}
 				//move?
-				go_done();
+//				if(can_done()) {
+//					if(checkBroadcast(3)) {
+//						broadcast(get_my_id());
+//						broadcast(1);
+//						broadcast(11);
+//						go_done();
+//						chThdSleepMilliseconds(100);
+//						canBroadcast = 0;
+//						chThdSleepMilliseconds(100);
+//					}
+//				}
 
-				if(checkBroadcast(4)) {
 					set_rgb_led(LED2, 0, 0 ,0);
 					set_rgb_led(LED6, 0, 0 ,0);
-					while(1) {
+				while(1) {
 
-						set_rgb_led(LED4, 0, 0, 0);
-						set_rgb_led(LED8, 0, 0, 0);
-						if(can_free()) {
+//					if(can_free()) {
+						set_rgb_led(LED4, 0, 1, 0);
+						set_rgb_led(LED8, 1, 0, 0);
+						if(checkBroadcast(4)) {
 							set_rgb_led(LED4, 0, 1, 0);
 							//this is broadcast for free.
 							broadcast(get_my_id());
 							broadcast(11);
-							go_free();
+							//change it to get_my_id
+							robot_moved_in_map(vmap, get_my_id(), *my_coordinate);
+//							go_free();
+							push_to_free_robots_list(get_list_robot()[get_my_id() - 1].robot);
+							setRobot(vmap, get_my_id(), my_coordinate -> x, my_coordinate -> y);
 							chThdSleepMilliseconds(100);
 						    canBroadcast = 0;
 						    chThdSleepMilliseconds(100);
 							break;
-						}
+//						}
 					}
 //					else {
 //						set_rgb_led(LED8, 0, 1, 0);
@@ -201,20 +217,25 @@ static THD_FUNCTION(comm_thd, arg) {
 		if (rgb_from_freq > 2000) {
 			time_first = ST2S(chVTGetSystemTimeX());
 			chThdSleepMilliseconds(1000);
-			new_robot(id);
+			Coordinate * new_coordinate = (Coordinate*) malloc(sizeof(Coordinate));
+			new_coordinate -> x = 1;
+			new_coordinate -> y = id;
+			new_robot(id, new_coordinate);
+			setRobot(vmap, id, new_coordinate -> x, new_coordinate -> y);
 			id++;
 		} else {
 			time_now = ST2S(chVTGetSystemTimeX());
 		}
 	}
 
-//	left_motor_set_speed(100);
 	//adding this robot to the list
-	new_robot(id);
-	set_my_id(id);
+
     my_coordinate = (Coordinate *) malloc(sizeof(Coordinate));
-    my_coordinate->x = 2;
+    my_coordinate->x = 1;
     my_coordinate->y = id;
+    new_robot(id, my_coordinate);
+	setRobot(vmap, id, my_coordinate -> x, my_coordinate -> y);
+	set_my_id(id);
 	id++;
 	set_rgb_led(LED2, 0, 0, 0);
 
@@ -232,7 +253,11 @@ static THD_FUNCTION(comm_thd, arg) {
 			dac_play(2100);
 			time_first = ST2S(chVTGetSystemTimeX()) + 10;
 			chThdSleepMilliseconds(400);
-			new_robot(id);
+			Coordinate * new_coordinate = (Coordinate*) malloc(sizeof(Coordinate));
+			new_coordinate -> x = 1;
+			new_coordinate -> y = id;
+			new_robot(id, new_coordinate);
+			setRobot(vmap, id, new_coordinate -> x, new_coordinate -> y);
 			id++;
 			dac_stop();
 			chThdSleepMilliseconds(600);
@@ -389,18 +414,32 @@ static THD_FUNCTION(selector_thd, arg) {
 	    		chThdSleepMilliseconds(600);
 			}
 
-			if (index == 1) {
-				int robot_id = ((sounds[0] - 1000) / 100);
+			//free
+			if (index % 5 == 1) {
+				int robot_id = ((sounds[0] - 1000) / 100) - 1;
 				if (sounds[1] == 10) {
 					set_led(LED7,1);
 					index = 0;
-					go_done();
-					chThdSleepMilliseconds(20);
-					go_free();
+//					go_free();
+					robot_moved_in_map(vmap, robot_id, *(get_list_robot()[robot_id - 1].robot.coordinate));
+
+					push_to_free_robots_list(get_list_robot()[robot_id - 1].robot);
 					chThdSleepMilliseconds(20);
 					chThdSleepMilliseconds(1000);
 				}
 			}
+
+			//done
+//			if (index % 5 == 2) {
+//				if (sounds[2] == 10) {
+//					set_led(LED7,1);
+//					index = 0;
+//					go_done();
+//					chThdSleepMilliseconds(20);
+//					chThdSleepMilliseconds(1000);
+//				}
+//			}
+
 			set_led(LED7,0);
 			//HOPE THERE IS NO NOISEE
 			//updating from broadcast
@@ -411,6 +450,11 @@ static THD_FUNCTION(selector_thd, arg) {
 				//the robots has to pop another robot
 				chThdSleepMilliseconds(600);
 				go_work();
+				Coordinate * new_coordinate = (Coordinate*) malloc(sizeof(Coordinate));
+				new_coordinate -> x =  pos_x;
+				new_coordinate -> y = pos_y;
+			    move_robot_in_map(vmap, robot_id, *get_list_robot()[robot_id - 1].robot.coordinate, *new_coordinate);
+				index = 0;
 				//test first. afraid there are delays
 				// TODO : update map
 			}
@@ -448,6 +492,7 @@ int main(void) {
 
     construct_map(vmap);
     init_robots();
+    unexplored = get_unexplored_coordinates(vmap, my_coordinate -> x, my_coordinate -> y);
 
 
 

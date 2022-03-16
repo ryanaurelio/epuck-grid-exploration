@@ -188,6 +188,7 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     }
 }
 
+
 void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
     char idc = (char) id;
 
@@ -198,3 +199,4 @@ void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
                 vmap[i][j] = 'o';
         }
 }
+

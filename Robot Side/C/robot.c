@@ -4,7 +4,9 @@
 #include "robot.h"
 #include "types.h"
 
+
 robot_node* freeRobots;
+robot_node* robots;
 robot_node* workingRobots;
 robot_node* doneRobots;
 
@@ -19,17 +21,21 @@ void init_robots(void) {
 
     doneRobots = (robot_node *) malloc(sizeof(robot_node));
     new_robot_list(doneRobots);
+
+    robots = (robot_node *) malloc(sizeof(robot_node));
+    new_robot_list(robots);
 }
 
 Robot robots_peek(robot_node * head) {
     return head->robot;
 }
 
-void new_robot(int id) {
+void new_robot(int id, Coordinate * coordinate) {
     Robot robot;
     robot.id = id;
-    robot.status = FREE;
+    robot.coordinate = coordinate;
     push_robot_list(freeRobots, robot);
+    push_robot_list(robots, robot);
 }
 
 void set_my_id(int id) {
@@ -40,43 +46,35 @@ int get_my_id(void) {
     return ID;
 }
 
-int can_done(int id) {
-    return robots_peek(workingRobots).id == id;
+int can_work(void) {
+    return robots_peek(freeRobots).id == ID;
 }
 
-int can_work(int id) {
-    return robots_peek(freeRobots).id == id;
-}
-
-int can_free(int id) {
-    return robots_peek(doneRobots).id == id;
-}
+//int can_free(void) {
+//    return robots_peek(doneRobots).id == ID;
+//}
+//
+//int can_done(void) {
+//	return robots_peek(workingRobots).id == ID;
+//}
 
 //assuming that all robots hear the same sound every time.
 void go_work(void) {
-    print_robot_list(freeRobots);
-    Robot r = pop_robot_list(&freeRobots);
-    printf("%d\n", r.id);
-    push_robot_list(workingRobots, r);
+//    push_robot_list(workingRobots, pop_robot_list(&freeRobots));
+    pop_robot_list(&freeRobots);
 }
 
-void go_done(void) {
-    push_robot_list(doneRobots, pop_robot_list(&workingRobots));
+robot_node* get_list_robot(void) {
+	return robots;
 }
 
-void go_free(void) {
-    push_robot_list(freeRobots, pop_robot_list(&doneRobots));
+void push_to_free_robots_list(Robot robot) {
+	push_robot_list(freeRobots, robot);
 }
-
-// Test
-robot_node * get_free() {
-    return freeRobots;
-}
-
-robot_node * get_work() {
-    return workingRobots;
-}
-
-robot_node * get_done() {
-    return doneRobots;
-}
+//void go_done(void) {
+//    push_robot_list(doneRobots, pop_robot_list(&workingRobots));
+//}
+//
+//void go_free(void) {
+//    push_robot_list(freeRobots, pop_robot_list(&doneRobots));
+//}

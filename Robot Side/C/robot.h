@@ -3,21 +3,18 @@
 
 #include "types.h"
 
-int can_done(int id);
-int can_free(int id);
-int can_work(int id);
+
+int can_free(void);
+int can_work(void);
 int get_my_id(void);
 void go_done(void);
 void go_free(void);
 void go_work(void);
 void init_robots(void);
-void new_robot(int id);
+void new_robot(int id, Coordinate * coordinate);
 Robot robots_peek(robot_node * head);
 void set_my_id(int id);
-
-// Test
-robot_node * get_free();
-robot_node * get_work();
-robot_node * get_done();
+robot_node* get_list_robot(void);
+void push_to_free_robots_list(Robot robot);
 
 #endif

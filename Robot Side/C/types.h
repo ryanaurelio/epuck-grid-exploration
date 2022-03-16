@@ -11,9 +11,15 @@ typedef enum{
     FREE
 } status;
 
+// Coordinate
+typedef struct {
+    int x;
+    int y;
+} Coordinate;
+
 typedef struct {
     int id;
-    status status;
+    Coordinate * coordinate;
 } Robot;
 
 // Robot list
@@ -27,12 +33,6 @@ void new_robot_list(robot_node * head);
 Robot pop_robot_list(robot_node ** head);
 void print_robot_list(robot_node * head);
 void push_robot_list(robot_node * head, Robot val);
-
-// Coordinate
-typedef struct {
-    int x;
-    int y;
-} Coordinate;
 
 int compare_coordinate(Coordinate * c1, Coordinate * c2);
 void print_coordinate(Coordinate * c);

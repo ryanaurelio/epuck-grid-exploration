@@ -8,6 +8,14 @@ void construct_map(char vmap[HEIGHT][WIDTH]) {
             vmap[i][j] = (i == 0 || i == HEIGHT-1 || j == 0 || j == WIDTH-1) ? 'x' : '.';
 }
 
+int is_complete(char vmap[HEIGHT][WIDTH]) {
+    for (int i = 0; i < HEIGHT; i++)
+        for (int j = 0; j < WIDTH; j++)
+            if (vmap[i][j] == '.')
+                return 0;
+    return 1;
+}
+
 void print_map(char vmap[HEIGHT][WIDTH]) {
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++)

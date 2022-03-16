@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+int can_done(int id);
 int can_free(int id);
 int can_work(int id);
 int get_my_id(void);

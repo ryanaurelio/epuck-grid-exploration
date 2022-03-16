@@ -40,6 +40,10 @@ int get_my_id(void) {
     return ID;
 }
 
+int can_done(int id) {
+    return robots_peek(workingRobots).id == id;
+}
+
 int can_work(int id) {
     return robots_peek(freeRobots).id == id;
 }

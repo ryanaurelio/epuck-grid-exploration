@@ -3,8 +3,8 @@
 
 #include "types.h"
 
-int can_free(void);
-int can_work(void);
+int can_free(int id);
+int can_work(int id);
 int get_my_id(void);
 void go_done(void);
 void go_free(void);

@@ -40,12 +40,12 @@ int get_my_id(void) {
     return ID;
 }
 
-int can_work(void) {
-    return robots_peek(freeRobots).id == ID;
+int can_work(int id) {
+    return robots_peek(freeRobots).id == id;
 }
 
-int can_free(void) {
-    return robots_peek(doneRobots).id == ID;
+int can_free(int id) {
+    return robots_peek(doneRobots).id == id;
 }
 
 //assuming that all robots hear the same sound every time.

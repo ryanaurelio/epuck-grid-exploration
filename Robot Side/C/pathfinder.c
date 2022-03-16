@@ -175,3 +175,24 @@ coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t
 
     return get_nearest_unexplored(vmap, unexplored, row, column);
 }
+
+void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinate t) {
+    coordinate_node * path = find_path(vmap, s, t);
+    coordinate_node * current = path;
+
+    char idc = (char) id;
+
+    while (current != NULL) {
+        vmap[current->val.x][current->val.y] = idc;
+        current = current->next;
+    }
+}
+
+void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinate t) {
+    char idc = (char) id;
+
+    for (int i = 0; i < HEIGHT; i++)
+        for (int j = 0; j < WIDTH; j++)
+            if (vmap[i][j] == idc)
+                vmap[i][j] = 'o';
+}

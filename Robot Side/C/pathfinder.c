@@ -102,25 +102,25 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
 
             if (check_valid_coordinate(vmap, explored, south)) {
                 push_coordinate_list(explored, south);
-                coordinate_node * newP = p->val;
+                coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, south);
                 push_path_list(newPaths, newP);
             }
             if (check_valid_coordinate(vmap, explored, north)) {
                 push_coordinate_list(explored, north);
-                coordinate_node * newP = p->val;
+                coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, north);
                 push_path_list(newPaths, newP);
             }
             if (check_valid_coordinate(vmap, explored, west)) {
                 push_coordinate_list(explored, west);
-                coordinate_node * newP = p->val;
+                coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, west);
                 push_path_list(newPaths, newP);
             }
             if (check_valid_coordinate(vmap, explored, east)) {
                 push_coordinate_list(explored, east);
-                coordinate_node * newP = p->val;
+                coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, east);
                 push_path_list(newPaths, newP);
             }

@@ -131,6 +131,17 @@ void print_coordinate_list(coordinate_node * head) {
     printf("]");
 }
 
+coordinate_node * copy_coordinate_list(coordinate_node * head) {
+    if (head == NULL) {
+        return NULL;
+    } else {
+        coordinate_node * newNode = (coordinate_node *) malloc(sizeof(coordinate_node));
+        newNode->val = head->val;
+        newNode->next = copy_coordinate_list(head->next);
+        return newNode;
+    }
+}
+
 // Path list
 int is_path_list_empty(path_node * head) {
     return head->val->val.x == -1 && head->val->val.y == -1 && head->next == NULL;

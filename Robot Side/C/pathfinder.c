@@ -180,7 +180,7 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     coordinate_node * path = find_path(vmap, s, t);
     coordinate_node * current = path;
 
-    char idc = (char) id;
+    char idc = (char) (id - 208);
 
     while (current != NULL) {
         vmap[current->val.x][current->val.y] = idc;
@@ -190,7 +190,7 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
 
 
 void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
-    char idc = (char) id;
+    char idc = (char) (id - 208);
 
     for (int i = 0; i < HEIGHT; i++)
         for (int j = 0; j < WIDTH; j++) {

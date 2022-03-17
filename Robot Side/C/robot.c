@@ -61,3 +61,16 @@ robot_node* get_list_robot(void) {
 void push_to_free_robots_list(Robot robot) {
 	push_robot_list(freeRobots, robot);
 }
+
+Robot get_robot_with_index(robot_node * robot_list, int idx) {
+    robot_node * current = robot_list;
+
+    while (current != NULL) {
+        if (idx-- == 0)
+            return current->robot;
+        current = current->next;
+    }
+
+    Robot r = {0, NULL};
+    return r;
+}

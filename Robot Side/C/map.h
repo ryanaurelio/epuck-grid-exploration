@@ -1,8 +1,8 @@
 #ifndef MAP_H
 #define MAP_H
 
-#define HEIGHT 4
-#define WIDTH 7
+#define HEIGHT 5
+#define WIDTH 5
 
 void construct_map(char vmap[HEIGHT][WIDTH]);
 int is_complete(char vmap[HEIGHT][WIDTH]);

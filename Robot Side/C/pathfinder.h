@@ -15,5 +15,6 @@ coordinate_node * get_unexplored_coordinates(char vmap[HEIGHT][WIDTH], int row, 
 coordinate_node * get_nearest_unexplored(
                 char vmap[HEIGHT][WIDTH],coordinate_node * unexploredCoordinates, int row, int column);
         void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable);
+Coordinate * get_nearest_coordinate(char vmap[HEIGHT][WIDTH], int row, int column);
 
 #endif //PATHFINDER_H

@@ -14,8 +14,8 @@ void init_robots(void);
 void new_robot(int id, Coordinate * coordinate);
 Robot robots_peek(robot_node * head);
 void set_my_id(int id);
-robot_node* get_list_robot(void);
-void push_to_free_robots_list(Robot robot);
 Robot get_robot_with_index(int idx);
+void push_to_free_robots_list(Robot robot);
+
 
 #endif

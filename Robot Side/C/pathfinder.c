@@ -3,6 +3,7 @@
 
 #include "map.h"
 #include "types.h"
+#include "robot.h"
 
 void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable) {
     char symbol = vmap[row][column];
@@ -200,3 +201,10 @@ void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
         }
 }
 
+Coordinate * get_nearest_coordinate(char vmap[HEIGHT][WIDTH], int row, int column) {
+	coordinate_node * unexplored;
+    unexplored = get_unexplored_coordinates(vmap, row, column);
+
+    return coordinate_list_last(get_nearest_unexplored(vmap, unexplored, row, column));
+
+}

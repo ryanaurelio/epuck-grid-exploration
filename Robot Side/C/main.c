@@ -66,7 +66,6 @@ int canBroadcast = 0;
 uint id = 1;
 char vmap[HEIGHT][WIDTH];
 Coordinate * my_coordinate;
-coordinate_node * unexplored;
 
 
 int listen(void) {
@@ -85,10 +84,16 @@ int listen(void) {
 
 void broadcast(int number) {
     chThdSleepMilliseconds(100);
-	dac_play(((number + 1) * 100) + 1050);
+	dac_play((number * 200) + 1175);
     chThdSleepMilliseconds(700);
     dac_stop();
-    chThdSleepMilliseconds(300);
+    chThdSleepMilliseconds(1500);
+
+//	chThdSleepMilliseconds(100);
+//	dac_play((number * 500) + 1250);
+//	chThdSleepMilliseconds(700);
+//	dac_stop();
+//	chThdSleepMilliseconds(300);
 }
 
 int checkBroadcast(int number) {
@@ -111,17 +116,20 @@ static THD_FUNCTION(working_thd, arg) {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
-    while(1) {
+    while(!is_complete(vmap)) {
     	if(!connectPhase) {
 			//check map also
-			if(can_work()) {
+//    		 if (is_complete(vmap)) {
+//				break;
+//    		 }
+    		 if(can_work()) {
 				chThdSleepMilliseconds(500);
 
 				set_rgb_led(LED2, 0, 0 ,1);
 				Coordinate * nearestCoordinate;
 				go_work();
 				//ambil last di types.h
-				nearestCoordinate = coordinate_list_last(get_nearest_unexplored(vmap, unexplored, my_coordinate -> x, my_coordinate -> y));
+				nearestCoordinate = get_nearest_coordinate(vmap, my_coordinate -> x , my_coordinate -> y);
 
 
 				//broadcast id and coordinate
@@ -129,15 +137,23 @@ static THD_FUNCTION(working_thd, arg) {
 					set_led(LED1, 1);
 				if(checkBroadcast(2)) {
 					broadcast(get_my_id());
-					broadcast((int)nearestCoordinate -> x/10);
-					broadcast((int)nearestCoordinate -> x%10);
-					broadcast((int)nearestCoordinate -> y/10);
-					broadcast((int)nearestCoordinate -> y%10);
+//					broadcast(0);
+//					broadcast((int)nearestCoordinate -> x/10);
+//					broadcast((int)nearestCoordinate -> x%10);
+					broadcast((int)nearestCoordinate -> x/4);
+					broadcast((int)nearestCoordinate -> x%4);
+
+//					broadcast(0);
+//					broadcast((int)nearestCoordinate -> y/10);
+//					broadcast((int)nearestCoordinate -> y%10);
+					broadcast((int)nearestCoordinate -> y/4);
+					broadcast((int)nearestCoordinate -> y%4);
 				    canBroadcast = 0;
 				    chThdSleepMilliseconds(100);
 				    move_robot_in_map(vmap, get_my_id(), *my_coordinate, *nearestCoordinate);
 					my_coordinate -> x = nearestCoordinate -> x;
 					my_coordinate -> y =  nearestCoordinate -> y;
+
 				}
 				//move?
 //				if(can_done()) {
@@ -159,19 +175,26 @@ static THD_FUNCTION(working_thd, arg) {
 //					if(can_free()) {
 						set_rgb_led(LED4, 0, 1, 0);
 						set_rgb_led(LED8, 1, 0, 0);
-						if(checkBroadcast(4)) {
+						if(checkBroadcast(5)) {
 							set_rgb_led(LED4, 0, 1, 0);
 							//this is broadcast for free.
 							broadcast(get_my_id());
-							broadcast(11);
+							broadcast(5);
+//							broadcast(1);
 							//change it to get_my_id
 							robot_moved_in_map(vmap, get_my_id(), *my_coordinate);
 //							go_free();
-							push_to_free_robots_list(get_list_robot()[get_my_id() - 1].robot);
-							setRobot(vmap, get_my_id(), my_coordinate -> x, my_coordinate -> y);
+							push_to_free_robots_list(get_robot_with_index(get_my_id() - 1));
 							chThdSleepMilliseconds(100);
 						    canBroadcast = 0;
 						    chThdSleepMilliseconds(100);
+
+
+							//newly added
+							get_robot_with_index(get_my_id() - 1).coordinate->x = nearestCoordinate -> x;
+							get_robot_with_index(get_my_id() - 1).coordinate->y = nearestCoordinate -> y;
+
+
 							break;
 //						}
 					}
@@ -218,10 +241,14 @@ static THD_FUNCTION(comm_thd, arg) {
 			time_first = ST2S(chVTGetSystemTimeX());
 			chThdSleepMilliseconds(1000);
 			Coordinate * new_coordinate = (Coordinate*) malloc(sizeof(Coordinate));
+			if (id == 1) {
+				set_led(LED1, 1);
+			}
 			new_coordinate -> x = 1;
 			new_coordinate -> y = id;
 			new_robot(id, new_coordinate);
 			setRobot(vmap, id, new_coordinate -> x, new_coordinate -> y);
+
 			id++;
 		} else {
 			time_now = ST2S(chVTGetSystemTimeX());
@@ -229,6 +256,7 @@ static THD_FUNCTION(comm_thd, arg) {
 	}
 
 	//adding this robot to the list
+	set_led(LED1, 0);
 
     my_coordinate = (Coordinate *) malloc(sizeof(Coordinate));
     my_coordinate->x = 1;
@@ -267,7 +295,6 @@ static THD_FUNCTION(comm_thd, arg) {
     }
     set_rgb_led(LED4, 0, 0, 0);
 	connectPhase = 0;
-
 }
 
 static void mic_callback(int16_t *data, uint16_t num_samples) {
@@ -330,100 +357,127 @@ static THD_FUNCTION(selector_thd, arg) {
     chRegSetThreadName(__FUNCTION__);
 
 	uint16_t rgb_from_freq = 0;
-	int sounds[5];
+	int sounds[6];
 	int index = 0;
 
-    while(1) {
-		if(index % 2 == 0) {
-			set_led(LED3, 1);
-		} else {
-			set_led(LED3, 0);
-		}
+    while(!is_complete(vmap)) {
+//		if(index % 2 == 0) {
+//			set_led(LED3, 1);
+//		} else {
+//			set_led(LED3, 0);
+//		}
 
     	if(!connectPhase && !canBroadcast) {
 
     		rgb_from_freq = listen();
     		set_rgb_led (LED2, 0, 0, 0);
+    		set_led(LED5, 0);
+    		set_led(LED1, 0);
+    		set_led(LED7, 0);
+    		set_led(LED3, 0);
 
 			if(rgb_from_freq < 1000) {
 	    		set_rgb_led(LED2, 1, 0, 0);
+	    		continue;
 
-			} else if(rgb_from_freq < 1100) {
-				sounds[index%5] = 0;
-	    		index++;
-	    		chThdSleepMilliseconds(600);
 			}
+
+//	    	else if(rgb_from_freq < 1100) {
+//				sounds[index%5] = 0;
+//				set_rgb_led(LED2, 0, 1, 0);
+//	    		index++;
+//	    		chThdSleepMilliseconds(900);
+//			}
 
 			else if(rgb_from_freq < 1200) {
-				sounds[index%5] = 1;
+				sounds[index] = 0;
+//				sounds[index%5] = 1;
+	    		set_led(LED1, 1);
 	    		index++;
-	    		chThdSleepMilliseconds(600);
+	    		chThdSleepMilliseconds(900);
 			}
 
-			else if(rgb_from_freq < 1300) {
-				sounds[index%5] = 2;
-	    		index++;
-	    		chThdSleepMilliseconds(600);
-			}
+//			else if(rgb_from_freq < 1300) {
+//				sounds[index%5] = 2;
+//				set_led(LED5, 1);
+//	    		index++;
+//	    		chThdSleepMilliseconds(900);
+//			}
 
 			else if(rgb_from_freq < 1400) {
-				sounds[index%5] = 3;
+				sounds[index] = 1 - 1;
+//				sounds[index%5] = 3;
+	    		set_led(LED3, 1);
 	    		index++;
-	    		chThdSleepMilliseconds(600);
+	    		chThdSleepMilliseconds(900);
 			}
 
-			else if(rgb_from_freq < 1500) {
-				sounds[index%5] = 4;
-	    		index++;
-	    		chThdSleepMilliseconds(600);
-			}
+//			else if(rgb_from_freq < 1500) {
+////				sounds[index%5] = 4;
+//				sounds[index%5] = 0;
+//				set_led(LED1, 1);
+//	    		index++;
+//	    		chThdSleepMilliseconds(900);
+//			}
 
 			else if(rgb_from_freq < 1600) {
-				sounds[index%5] = 5;
+				sounds[index] = 2 - 1;
+//				sounds[index%5] = 5;
+				set_led(LED5, 1);
 	    		index++;
-	    		chThdSleepMilliseconds(600);
+	    		chThdSleepMilliseconds(900);
 			}
-			else if(rgb_from_freq < 1700) {
-				sounds[index%5] = 6;
-	    		index++;
-	    		chThdSleepMilliseconds(600);
-			}
+
+//			else if(rgb_from_freq < 1700) {
+//				sounds[index%5] = 6;
+//	    		index++;
+//	    		chThdSleepMilliseconds(900);
+//			}
 
 			else if(rgb_from_freq < 1800) {
-				sounds[index%5] = 7;
+				sounds[index] = 3 - 1;
+//				sounds[index%5] = 7;
+				set_led(LED7, 1);
 	    		index++;
-	    		chThdSleepMilliseconds(600);
+	    		chThdSleepMilliseconds(900);
 			}
 
-			else if(rgb_from_freq < 1900) {
-				sounds[index%5] = 8;
-	    		index++;
-	    		chThdSleepMilliseconds(600);
-			}
+//			else if(rgb_from_freq < 1900) {
+//				sounds[index%5] = 8;
+//	    		index++;
+//	    		chThdSleepMilliseconds(900);
+//			}
 
 			else if(rgb_from_freq < 2000) {
-				sounds[index%5] = 9;
+//				sounds[index%5] = 1;
+				sounds[index] = 4 - 1;
+//				sounds[index%5] = 9;
+				set_front_led(1);
 	    		index++;
-	    		chThdSleepMilliseconds(600);
+	    		chThdSleepMilliseconds(900);
+	    		set_front_led(0);
 			}
 
 	    		//this is for the finish sound (> 2000)
 			else {
-				sounds[index%5] = 10;
+				sounds[index] = 10;
 	    		index++;
-	    		chThdSleepMilliseconds(600);
+//				set_led(LED5, 1);
+//	    		chThdSleepMilliseconds(600);
+	    		chThdSleepMilliseconds(900);
 			}
 
 			//free
-			if (index % 5 == 1) {
-				int robot_id = ((sounds[0] - 1000) / 100) - 1;
+			if (index == 2) {
+				int robot_id = sounds[0];
 				if (sounds[1] == 10) {
+					set_body_led(1);
 					set_led(LED7,1);
 					index = 0;
 //					go_free();
-					robot_moved_in_map(vmap, robot_id, *(get_list_robot()[robot_id - 1].robot.coordinate));
+					robot_moved_in_map(vmap, robot_id, *get_robot_with_index(robot_id - 1).coordinate);
+					push_to_free_robots_list(get_robot_with_index(robot_id - 1));
 
-					push_to_free_robots_list(get_list_robot()[robot_id - 1].robot);
 					chThdSleepMilliseconds(20);
 					chThdSleepMilliseconds(1000);
 				}
@@ -443,20 +497,54 @@ static THD_FUNCTION(selector_thd, arg) {
 			set_led(LED7,0);
 			//HOPE THERE IS NO NOISEE
 			//updating from broadcast
-			if(index % 5 == 4) {
-				int robot_id = ((sounds[0] - 1000) / 100);
-				int pos_x = ((sounds[1] - 1000)/100 * 10) + ((sounds[2] - 1000) / 100);
-				int pos_y = ((sounds[3] - 1000)/100 * 10) + ((sounds[4] - 1000) / 100);
+			if(index ==5 ) {
+				chThdSleepMilliseconds(2000);
+
+				int robot_id = sounds[0];
+				if (robot_id == 1) {
+					set_led(LED1,1);
+				}
+				int pos_x = sounds[1] * 4 + sounds[2];
+				int pos_y = sounds[3] * 4 + sounds[4];
+//				if (pos_x == 2) {
+//					set_front_led(1);
+//				}
+//				if (pos_y == 1) {
+//					set_body_led(1);
+//				}
+//				if (pos_y == 0) {
+//					left_motor_set_speed(100);
+//				}
+//				if (pos_y == 2) {
+//					left_motor_set_speed(800);
+//				}
+//
+//				if (pos_y == 3) {
+//					turnLeft(500);
+//				}
+//
+//				if (pos_y == 4) {
+//					set_rgb_led(LED8, 0,0,1);
+//				}
 				//the robots has to pop another robot
 				chThdSleepMilliseconds(600);
+//				chThdSleepMilliseconds(5000);
+//				chThdSleepMilliseconds(5000);
+//				chThdSleepMilliseconds(5000);
 				go_work();
 				Coordinate * new_coordinate = (Coordinate*) malloc(sizeof(Coordinate));
 				new_coordinate -> x =  pos_x;
 				new_coordinate -> y = pos_y;
-			    move_robot_in_map(vmap, robot_id, *get_list_robot()[robot_id - 1].robot.coordinate, *new_coordinate);
+			    move_robot_in_map(vmap, robot_id, *get_robot_with_index(robot_id - 1).coordinate, *new_coordinate);
 				index = 0;
+
+				get_robot_with_index(robot_id - 1).coordinate -> x = pos_x;
+				get_robot_with_index(robot_id - 1).coordinate -> y = pos_y;
 				//test first. afraid there are delays
 				// TODO : update map
+			}
+			if (index == 5) {
+				index =0;
 			}
 		}
     	else {
@@ -492,15 +580,11 @@ int main(void) {
 
     construct_map(vmap);
     init_robots();
-    unexplored = get_unexplored_coordinates(vmap, my_coordinate -> x, my_coordinate -> y);
 
-
-
-
-	chThdCreateStatic(selector_thd_wa, sizeof(selector_thd_wa), NORMALPRIO, selector_thd, NULL);
     chThdCreateStatic(record_thd_wa, sizeof(record_thd_wa), NORMALPRIO, record_thd, NULL);
 
 	chThdCreateStatic(comm_thd_wa, sizeof(comm_thd_wa), NORMALPRIO, comm_thd, NULL);
+	chThdCreateStatic(selector_thd_wa, sizeof(selector_thd_wa), NORMALPRIO, selector_thd, NULL);
 	chThdCreateStatic(working_thd_wa, sizeof(working_thd_wa), NORMALPRIO, working_thd, NULL);
 
 

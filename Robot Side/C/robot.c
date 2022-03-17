@@ -4,6 +4,7 @@
 #include "robot.h"
 #include "types.h"
 
+
 robot_node* freeRobots;
 robot_node* robots;
 robot_node* workingRobots;
@@ -49,17 +50,18 @@ int can_work(void) {
     return robots_peek(freeRobots).id == ID;
 }
 
+//int can_free(void) {
+//    return robots_peek(doneRobots).id == ID;
+//}
+//
+//int can_done(void) {
+//	return robots_peek(workingRobots).id == ID;
+//}
+
 //assuming that all robots hear the same sound every time.
 void go_work(void) {
+//    push_robot_list(workingRobots, pop_robot_list(&freeRobots));
     pop_robot_list(&freeRobots);
-}
-
-robot_node* get_list_robot(void) {
-	return robots;
-}
-
-void push_to_free_robots_list(Robot robot) {
-	push_robot_list(freeRobots, robot);
 }
 
 Robot get_robot_with_index(int idx) {
@@ -74,3 +76,15 @@ Robot get_robot_with_index(int idx) {
     Robot r = {0, NULL};
     return r;
 }
+
+
+void push_to_free_robots_list(Robot robot) {
+	push_robot_list(freeRobots, robot);
+}
+//void go_done(void) {
+//    push_robot_list(doneRobots, pop_robot_list(&workingRobots));
+//}
+//
+//void go_free(void) {
+//    push_robot_list(freeRobots, pop_robot_list(&doneRobots));
+//}

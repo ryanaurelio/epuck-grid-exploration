@@ -37,7 +37,6 @@ void setExplored(char vmap[HEIGHT][WIDTH], int x, int y) {
 }
 
 void setRobot(char vmap[HEIGHT][WIDTH], int id, int x, int y) {
-    // Max: 9
     char idc = (char) (id - 208);
     vmap[x][y] = idc;
 }

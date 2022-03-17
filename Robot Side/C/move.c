@@ -45,15 +45,43 @@ double calculateTime(double angle, int speed) {
 	return bs;
 }
 
+void moveForward(int speed){
+	left_motor_set_speed(speed);
+	right_motor_set_speed(speed);
+    chThdSleepMilliseconds(500);
+}
+
+void moveBackward(int speed){
+	left_motor_set_speed(-speed);
+	right_motor_set_speed(-speed);
+    chThdSleepMilliseconds(500);
+}
 
 void turnRight(int speed) {
-	double time_turn = calculateTime(90, speed);
+//	double time_turn = calculateTime(90, speed);
+//	left_motor_set_speed(-speed);
+//	right_motor_set_speed(speed);
+//    chThdSleepMilliseconds(time_turn);
+//	left_motor_set_speed(0);
+//	right_motor_set_speed(0);
+//    chThdSleepMilliseconds(1000);
+
+	double new_speed = MAX_VELOCITY * speed / 1000;
+	double T = 1.0 / (AXLE_LENGTH * PI / find_speed(speed));
+	double angle_per_circle = 1.0 / 360.0 * 90;
+	double s = AXLE_LENGTH * PI * angle_per_circle;
+	double v = new_speed * T;
+	double bs = s/v;
+	double time_turn = calculateTime(1.0 * 90, 1.0 * speed);
 	left_motor_set_speed(-speed);
 	right_motor_set_speed(speed);
-    chThdSleepMilliseconds(time_turn);
+    chThdSleepMilliseconds(bs * 1000);
+
 	left_motor_set_speed(0);
 	right_motor_set_speed(0);
     chThdSleepMilliseconds(1000);
+
+    moveForward(speed);
 }
 
 void turnLeft(int speed) {
@@ -72,25 +100,16 @@ void turnLeft(int speed) {
 	right_motor_set_speed(0);
     chThdSleepMilliseconds(1000);
 
-	left_motor_set_speed(-speed);
-	right_motor_set_speed(speed);
-    chThdSleepMilliseconds(time_turn * 1000);
-	left_motor_set_speed(0);
-	right_motor_set_speed(0);
-    chThdSleepMilliseconds(1000);
+//	left_motor_set_speed(-speed);
+//	right_motor_set_speed(speed);
+//    chThdSleepMilliseconds(time_turn * 1000);
+//	left_motor_set_speed(0);
+//	right_motor_set_speed(0);
+//    chThdSleepMilliseconds(1000);
+    moveForward(speed);
 }
 
-void moveForward(int speed){
-	left_motor_set_speed(speed);
-	right_motor_set_speed(speed);
-    chThdSleepMilliseconds(500);
-}
 
-void moveBackward(int speed){
-	left_motor_set_speed(-speed);
-	right_motor_set_speed(-speed);
-    chThdSleepMilliseconds(500);
-}
 
 void stop(void){
 	left_motor_set_speed(0);

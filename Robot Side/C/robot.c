@@ -62,8 +62,8 @@ void push_to_free_robots_list(Robot robot) {
 	push_robot_list(freeRobots, robot);
 }
 
-Robot get_robot_with_index(robot_node * robot_list, int idx) {
-    robot_node * current = robot_list;
+Robot get_robot_with_index(int idx) {
+    robot_node * current = robots;
 
     while (current != NULL) {
         if (idx-- == 0)

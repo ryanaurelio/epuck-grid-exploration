@@ -1,10 +1,10 @@
-#include "motors.h"
-#include "sensors/proximity.h"
-#include "leds.h"
+#include <string.h>
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
-
+#include "motors.h"
+#include "sensors/proximity.h"
+#include "leds.h"
 
 #define WHEEL_RADIUS 0.0205 // in m
 #define AXLE_LENGTH 0.051 // in m
@@ -45,16 +45,25 @@ double calculateTime(double angle, int speed) {
 	return bs;
 }
 
+void stop(void){
+	left_motor_set_speed(0);
+	right_motor_set_speed(0);
+}
 void moveForward(int speed){
 	left_motor_set_speed(speed);
 	right_motor_set_speed(speed);
-    chThdSleepMilliseconds(500);
+//    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(1500);
+    stop();
 }
 
 void moveBackward(int speed){
 	left_motor_set_speed(-speed);
 	right_motor_set_speed(-speed);
-    chThdSleepMilliseconds(500);
+//    chThdSleepMilliseconds(1000);
+
+    chThdSleepMilliseconds(1500);
+    stop();
 }
 
 void turnRight(int speed) {
@@ -73,15 +82,15 @@ void turnRight(int speed) {
 	double v = new_speed * T;
 	double bs = s/v;
 	double time_turn = calculateTime(1.0 * 90, 1.0 * speed);
-	left_motor_set_speed(-speed);
-	right_motor_set_speed(speed);
-    chThdSleepMilliseconds(bs * 1000);
+	left_motor_set_speed(speed);
+	right_motor_set_speed(-speed);
+//    chThdSleepMilliseconds(bs * 1000);
+    chThdSleepMilliseconds(581.77);
 
 	left_motor_set_speed(0);
 	right_motor_set_speed(0);
     chThdSleepMilliseconds(1000);
 
-    moveForward(speed);
 }
 
 void turnLeft(int speed) {
@@ -92,46 +101,68 @@ void turnLeft(int speed) {
 	double v = new_speed * T;
 	double bs = s/v;
 	double time_turn = calculateTime(1.0 * 90, 1.0 * speed);
-	left_motor_set_speed(speed);
-	right_motor_set_speed(-speed);
-    chThdSleepMilliseconds(bs * 1000);
+//	left_motor_set_speed(speed);
+//	right_motor_set_speed(-speed);
+//    chThdSleepMilliseconds(bs * 1000);
+//
+//	left_motor_set_speed(0);
+//	right_motor_set_speed(0);
+//    chThdSleepMilliseconds(1000);
 
+	left_motor_set_speed(-speed);
+	right_motor_set_speed(speed);
+//    chThdSleepMilliseconds(time_turn * 1000);
+	chThdSleepMilliseconds(581.77);
 	left_motor_set_speed(0);
 	right_motor_set_speed(0);
     chThdSleepMilliseconds(1000);
 
-//	left_motor_set_speed(-speed);
-//	right_motor_set_speed(speed);
-//    chThdSleepMilliseconds(time_turn * 1000);
-//	left_motor_set_speed(0);
-//	right_motor_set_speed(0);
-//    chThdSleepMilliseconds(1000);
-    moveForward(speed);
 }
 
 
 
-void stop(void){
-	left_motor_set_speed(0);
-	right_motor_set_speed(0);
-}
+
 
 void parseMovement(char* movementSet, int len, int speed) {
-	for(int i = 0; i < len; i++) {
+//	if ((int)strlen(movementSet) > 1) {
+//		set_body_led(1);
+//		chThdSleepMilliseconds(1000);
+//	}
+
+	for(int i = 0; i < (int)strlen(movementSet); i++) {
 		char movement = movementSet[i];
 		switch(movement){
 		case 'W':
+			set_led(LED1, 1);
 			moveForward(speed);
+			chThdSleepMilliseconds(1000);
+			set_led(LED1, 0);
 			break;
 		case 'S':
+			set_led(LED5, 1);
 			moveBackward(speed);
+			chThdSleepMilliseconds(1000);
+			set_led(LED5, 0);
 			break;
 		case 'A':
+			set_led(LED7, 1);
 			turnLeft(speed);
+			moveForward(speed);
+			turnRight(speed);
+			chThdSleepMilliseconds(1000);
+			set_led(LED7, 0);
 			break;
 		case 'D':
+			set_led(LED3, 1);
 			turnRight(speed);
+			moveForward(speed);
+			turnLeft(speed);
+			chThdSleepMilliseconds(1000);
+			set_led(LED3, 0);
 			break;
 		}
 	}
+
+
+
 }

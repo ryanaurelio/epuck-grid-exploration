@@ -4,6 +4,8 @@
 #include "map.h"
 #include "types.h"
 #include "robot.h"
+#include "move.h"
+#include "leds.h"
 
 void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable) {
     char symbol = vmap[row][column];
@@ -137,10 +139,13 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
 }
 
 char * parse_path(coordinate_node * path) {
-    static char seq [] = "";
+//    static char seq [] = "";
+//     char * seq = "";
+	char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
+
 
     coordinate_node * current = path;
-
+    int len = 0;
     while (current->next != NULL) {
 
         int pr = current->val.x;
@@ -152,16 +157,63 @@ char * parse_path(coordinate_node * path) {
         int c = qc - pc;
 
         if (r == -1)
-            strcat(seq, "W");
+//            strcat(seq, "W");
+        	seq[len] = 'W';
         else if (c == -1)
-            strcat(seq, "A");
+//            strcat(seq, "A");
+        	seq[len] = 'A';
         else if (r == 1)
-            strcat(seq, "S");
+//            strcat(seq, "S");
+        	seq[len] = 'S';
         else if (c == 1)
-            strcat(seq, "D");
+//            strcat(seq, "D");
+        	seq[len] = 'D';
 
         current = current->next;
+        len++;
     }
+
+    if (len > 2)  {
+    	set_body_led(1);
+    	chThdSleepMilliseconds(1000);
+    	set_body_led(0);
+    }
+    int speed = 550;
+
+    for(int i = 0; i < len; i++) {
+    		char movement = seq[i];
+    		switch(movement){
+    		case 'W':
+    			set_led(LED1, 1);
+    			moveForward(speed);
+    			chThdSleepMilliseconds(1000);
+    			set_led(LED1, 0);
+    			break;
+    		case 'S':
+    			set_led(LED5, 1);
+    			moveBackward(speed);
+    			chThdSleepMilliseconds(1000);
+    			set_led(LED5, 0);
+    			break;
+    		case 'A':
+    			set_led(LED7, 1);
+    			turnLeft(speed);
+    			moveForward(speed);
+    			turnRight(speed);
+    			chThdSleepMilliseconds(1000);
+    			set_led(LED7, 0);
+    			break;
+    		case 'D':
+    			set_led(LED3, 1);
+    			turnRight(speed);
+    			moveForward(speed);
+    			turnLeft(speed);
+    			chThdSleepMilliseconds(1000);
+    			set_led(LED3, 0);
+    			break;
+    		}
+    	}
+
     return seq;
 }
 
@@ -182,11 +234,24 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     coordinate_node * current = path;
 
     char idc = (char) (id - 208);
+    int len = 0;
 
     while (current != NULL) {
         vmap[current->val.x][current->val.y] = idc;
         current = current->next;
     }
+
+    if(get_my_id() != id) {
+    		return;
+    	}
+
+    if (len > 2)  {
+        	set_body_led(1);
+        	chThdSleepMilliseconds(1000);
+        	set_body_led(0);
+        }
+//    parseMovement(parse_path(path), 0, 500);
+    parse_path(path);
 }
 
 

@@ -6,9 +6,11 @@
 
 // Robot
 typedef enum{
-    WORKING,
-    FREE
-} status;
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT
+} direction;
 
 // Coordinate
 typedef struct {
@@ -19,19 +21,20 @@ typedef struct {
 typedef struct {
     int id;
     Coordinate * coordinate;
+    direction direction;
 } Robot;
 
 // Robot list
 typedef struct r_node {
-    Robot robot;
+    Robot * robot;
     struct r_node * next;
 } robot_node;
 
 int is_robot_list_empty(robot_node * head);
 void new_robot_list(robot_node * head);
-Robot pop_robot_list(robot_node ** head);
+Robot * pop_robot_list(robot_node ** head);
 void print_robot_list(robot_node * head);
-void push_robot_list(robot_node * head, Robot val);
+void push_robot_list(robot_node * head, Robot * val);
 
 int compare_coordinate(Coordinate * c1, Coordinate * c2);
 void print_coordinate(Coordinate * c);

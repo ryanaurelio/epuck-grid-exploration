@@ -138,9 +138,7 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
     return empty;
 }
 
-char * parse_path(coordinate_node * path) {
-//    static char seq [] = "";
-//     char * seq = "";
+char * parse_path(coordinate_node * path, Robot * robot) {
 	char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
 
 
@@ -157,63 +155,97 @@ char * parse_path(coordinate_node * path) {
         int c = qc - pc;
 
         if (r == -1)
-//            strcat(seq, "W");
         	seq[len] = 'W';
         else if (c == -1)
-//            strcat(seq, "A");
         	seq[len] = 'A';
         else if (r == 1)
-//            strcat(seq, "S");
         	seq[len] = 'S';
         else if (c == 1)
-//            strcat(seq, "D");
         	seq[len] = 'D';
 
         current = current->next;
         len++;
     }
 
-    if (len > 2)  {
-    	set_body_led(1);
-    	chThdSleepMilliseconds(1000);
-    	set_body_led(0);
-    }
     int speed = 550;
 
     for(int i = 0; i < len; i++) {
     		char movement = seq[i];
     		switch(movement){
-    		case 'W':
-    			set_led(LED1, 1);
-    			moveForward(speed);
-    			chThdSleepMilliseconds(1000);
-    			set_led(LED1, 0);
-    			break;
-    		case 'S':
-    			set_led(LED5, 1);
-    			moveBackward(speed);
-    			chThdSleepMilliseconds(1000);
-    			set_led(LED5, 0);
-    			break;
-    		case 'A':
-    			set_led(LED7, 1);
-    			turnLeft(speed);
-    			moveForward(speed);
-    			turnRight(speed);
-    			chThdSleepMilliseconds(1000);
-    			set_led(LED7, 0);
-    			break;
-    		case 'D':
-    			set_led(LED3, 1);
-    			turnRight(speed);
-    			moveForward(speed);
-    			turnLeft(speed);
-    			chThdSleepMilliseconds(1000);
-    			set_led(LED3, 0);
-    			break;
+				case 'W':
+					switch(robot -> direction) {
+					case UP:
+						break;
+					case DOWN:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					case LEFT:
+						turnRight(speed);
+						break;
+					case RIGHT:
+						turnLeft(speed);
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = UP;
+					break;
+				case 'S':
+					switch(robot -> direction) {
+					case UP:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					case DOWN:
+						break;
+					case LEFT:
+						turnLeft(speed);
+						break;
+					case RIGHT:
+						turnRight(speed);
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = DOWN;
+					break;
+				case 'D':
+					switch(robot -> direction) {
+					case UP:
+						turnRight(speed);
+						break;
+					case DOWN:
+						turnLeft(speed);
+						break;
+					case LEFT:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					case RIGHT:
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = RIGHT;
+					break;
+				case 'A':
+					switch(robot -> direction) {
+					case UP:
+						turnLeft(speed);
+						break;
+					case DOWN:
+						turnRight(speed);
+						break;
+					case LEFT:
+						break;
+					case RIGHT:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = LEFT;
+					break;
     		}
     	}
-
     return seq;
 }
 
@@ -234,7 +266,6 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     coordinate_node * current = path;
 
     char idc = (char) (id - 208);
-    int len = 0;
 
     while (current != NULL) {
         vmap[current->val.x][current->val.y] = idc;
@@ -244,14 +275,8 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     if(get_my_id() != id) {
     		return;
     	}
-
-    if (len > 2)  {
-        	set_body_led(1);
-        	chThdSleepMilliseconds(1000);
-        	set_body_led(0);
-        }
-//    parseMovement(parse_path(path), 0, 500);
-    parse_path(path);
+    Robot * r = get_robot_with_index(id - 1);
+    parse_path(path, r);
 }
 
 

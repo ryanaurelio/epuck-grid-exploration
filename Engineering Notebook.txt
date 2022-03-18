@@ -110,6 +110,65 @@ Engineering Notebook
 * Completed the algorithm for pathfinder.
 * Implement the algorithm for single bot exploration.
 
+# 18th - 20th January 2022
+* Read the documentation for e-puck eclipse.
 
-# Problems:
-* Is it allowed to use Python as the "server" to connect all the robots?
+# 21st - 31st January 2022
+* Tried to use different examples from e-puck wiki (https://www.gctronic.com/doc/index.php?title=e-puck2_robot_side_development).
+* Some useful projects:
+  * https://github.com/e-puck2/e-puck2_example_dsp
+  * https://github.com/e-puck2/e-puck2_cpp
+* Look for much more example projects on the web but nothing that we can use.
+
+# 1st - 18th February 2022
+* Translated the Python code to C++ to use it in eclipse.
+
+# 19th - 25th February 2022
+* Tried to use the C++ code with main.c.
+* Build failed
+* Fixed header files to link C++ with C.
+* Successfully pushed to the robot.
+* Robot doesn't behave the same as when using only C.
+
+# 26th February - 3rd March 2022
+* Tried to use MPLAB for Bluetooth connection.
+* Can't build the project for bluetooth.
+* Fix the dependencies for bluetooth library.
+* Project compiled successfully.
+* Tried to use the elf/bin program using tinyBootloader and gdc.
+* Can't push elf or bin to robot.
+* Can't find a way to use bluetooth for robot to robot communication.
+
+# 4th - 7th March 2022
+* Translated C++ code to C.
+* Searched for possible communication method.
+  * https://www.gctronic.com/doc/index.php/E-Puck#Bluetooth_Communication_Testing_-_robot_to_robot
+  * https://jennyhasahat.github.io/soundboard.html (Here's stated that we need to find a workaround in order to communicate e-pucks with bluetooth)
+* Decided to use sound for communication.
+
+8th March 2022:
+* Discussed how the robot should initialize themselves at the start of the communication.
+* Discussed the encoding of the broadcasts (current position and done).
+* Divide the frequency range for communication (11 classes with 100Hz each).
+
+9th March 2022:
+* The frequency is too small to handle sound noises (around +- 70Hz).
+* Lower frequency sound such as car noises adds more noises to the lower part of the frequency range.
+* Cut the frequency range below 1200Hz.
+* Left with (5 classes with 200Hz each).
+
+10th - 16th March:
+* Implement the communication algorithm in C using frequency.
+* Implement and fix some bugs for the exploration algorithm in C, so they can communicate with each other.
+* Successfully communicate the map with each other.
+
+17th March 2022:
+* Tried to add the movement commands into the algorithm.
+* Noises from the robot's body add more noises to the communication.
+* Successfully simulate the exploration using soft surface (e.g. mouse pad).
+
+18th March 2022:
+* Tried to use a tape for the bumper so the robot won't make any sound when it stops.
+* Didn't work because the vibration of the robot still creates a noise.
+* Tried to use a rubber band as the bumper.
+* Didn't work since the height difference between the body of the robot and the wheel are very small.

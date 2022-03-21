@@ -2,12 +2,14 @@
 #include <string.h>
 
 #include "map.h"
+#include "robot.h"
 #include "types.h"
 
 void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable) {
     char symbol = vmap[row][column];
     Coordinate c = {row, column};
-    if ((symbol != '.' && symbol != 'o') || coordinate_list_contains(reachable, &c))
+    char id = (char) (get_my_id() - 208);
+    if ((symbol != '.' && symbol != 'o' && symbol != id) || coordinate_list_contains(reachable, &c))
         return;
 
     push_coordinate_list(reachable, c);

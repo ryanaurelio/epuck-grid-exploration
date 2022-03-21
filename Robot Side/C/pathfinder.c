@@ -3,14 +3,11 @@
 
 #include "map.h"
 #include "types.h"
-#include "robot.h"
-#include "move.h"
-#include "leds.h"
 
 void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable) {
     char symbol = vmap[row][column];
     Coordinate c = {row, column};
-    if (symbol == 'x' || coordinate_list_contains(reachable, &c))
+    if ((symbol != '.' && symbol != 'o') || coordinate_list_contains(reachable, &c))
         return;
 
     push_coordinate_list(reachable, c);
@@ -138,12 +135,11 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
     return empty;
 }
 
-char * parse_path(coordinate_node * path, Robot * robot) {
-	char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
-
+char * parse_path(coordinate_node * path) {
+    char * seq = (char *) malloc(HEIGHT*WIDTH*sizeof(char));
 
     coordinate_node * current = path;
-    int len = 0;
+
     while (current->next != NULL) {
 
         int pr = current->val.x;
@@ -155,97 +151,16 @@ char * parse_path(coordinate_node * path, Robot * robot) {
         int c = qc - pc;
 
         if (r == -1)
-        	seq[len] = 'W';
+            strcat(seq, "W");
         else if (c == -1)
-        	seq[len] = 'A';
+            strcat(seq, "A");
         else if (r == 1)
-        	seq[len] = 'S';
+            strcat(seq, "S");
         else if (c == 1)
-        	seq[len] = 'D';
+            strcat(seq, "D");
 
         current = current->next;
-        len++;
     }
-
-    int speed = 550;
-
-    for(int i = 0; i < len; i++) {
-    		char movement = seq[i];
-    		switch(movement){
-				case 'W':
-					switch(robot -> direction) {
-					case UP:
-						break;
-					case DOWN:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case LEFT:
-						turnRight(speed);
-						break;
-					case RIGHT:
-						turnLeft(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = UP;
-					break;
-				case 'S':
-					switch(robot -> direction) {
-					case UP:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case DOWN:
-						break;
-					case LEFT:
-						turnLeft(speed);
-						break;
-					case RIGHT:
-						turnRight(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = DOWN;
-					break;
-				case 'D':
-					switch(robot -> direction) {
-					case UP:
-						turnRight(speed);
-						break;
-					case DOWN:
-						turnLeft(speed);
-						break;
-					case LEFT:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case RIGHT:
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = RIGHT;
-					break;
-				case 'A':
-					switch(robot -> direction) {
-					case UP:
-						turnLeft(speed);
-						break;
-					case DOWN:
-						turnRight(speed);
-						break;
-					case LEFT:
-						break;
-					case RIGHT:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = LEFT;
-					break;
-    		}
-    	}
     return seq;
 }
 
@@ -271,12 +186,6 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
         vmap[current->val.x][current->val.y] = idc;
         current = current->next;
     }
-
-    if(get_my_id() != id) {
-    		return;
-    	}
-    Robot * r = get_robot_with_index(id - 1);
-    parse_path(path, r);
 }
 
 
@@ -291,10 +200,3 @@ void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
         }
 }
 
-Coordinate * get_nearest_coordinate(char vmap[HEIGHT][WIDTH], int row, int column) {
-	coordinate_node * unexplored;
-    unexplored = get_unexplored_coordinates(vmap, row, column);
-
-    return coordinate_list_last(get_nearest_unexplored(vmap, unexplored, row, column));
-
-}

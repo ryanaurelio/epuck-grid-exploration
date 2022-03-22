@@ -1,7 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#define HEIGHT 5
+#define HEIGHT 7
 #define WIDTH 5
 
 void construct_map(char vmap[HEIGHT][WIDTH]);

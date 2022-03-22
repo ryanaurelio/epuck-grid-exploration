@@ -2,14 +2,17 @@
 #include <string.h>
 
 #include "map.h"
-#include "robot.h"
 #include "types.h"
+#include "robot.h"
+#include "move.h"
+#include "leds.h"
 
 void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable) {
     char symbol = vmap[row][column];
     Coordinate c = {row, column};
     char id = (char) (get_my_id() - 208);
     if ((symbol != '.' && symbol != 'o' && symbol != id) || coordinate_list_contains(reachable, &c))
+//    if ((symbol == 'x') || coordinate_list_contains(reachable, &c))
         return;
 
     push_coordinate_list(reachable, c);
@@ -137,11 +140,12 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
     return empty;
 }
 
-char * parse_path(coordinate_node * path) {
-    char * seq = (char *) malloc(HEIGHT*WIDTH*sizeof(char));
+char * parse_path(coordinate_node * path, Robot * robot) {
+	char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
+
 
     coordinate_node * current = path;
-
+    int len = 0;
     while (current->next != NULL) {
 
         int pr = current->val.x;
@@ -153,16 +157,97 @@ char * parse_path(coordinate_node * path) {
         int c = qc - pc;
 
         if (r == -1)
-            strcat(seq, "W");
+        	seq[len] = 'W';
         else if (c == -1)
-            strcat(seq, "A");
+        	seq[len] = 'A';
         else if (r == 1)
-            strcat(seq, "S");
+        	seq[len] = 'S';
         else if (c == 1)
-            strcat(seq, "D");
+        	seq[len] = 'D';
 
         current = current->next;
+        len++;
     }
+
+    int speed = 550;
+
+    for(int i = 0; i < len; i++) {
+    		char movement = seq[i];
+    		switch(movement){
+				case 'W':
+					switch(robot -> direction) {
+					case UP:
+						break;
+					case DOWN:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					case LEFT:
+						turnRight(speed);
+						break;
+					case RIGHT:
+						turnLeft(speed);
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = UP;
+					break;
+				case 'S':
+					switch(robot -> direction) {
+					case UP:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					case DOWN:
+						break;
+					case LEFT:
+						turnLeft(speed);
+						break;
+					case RIGHT:
+						turnRight(speed);
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = DOWN;
+					break;
+				case 'D':
+					switch(robot -> direction) {
+					case UP:
+						turnRight(speed);
+						break;
+					case DOWN:
+						turnLeft(speed);
+						break;
+					case LEFT:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					case RIGHT:
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = RIGHT;
+					break;
+				case 'A':
+					switch(robot -> direction) {
+					case UP:
+						turnLeft(speed);
+						break;
+					case DOWN:
+						turnRight(speed);
+						break;
+					case LEFT:
+						break;
+					case RIGHT:
+						turnLeft(speed);
+						turnLeft(speed);
+						break;
+					}
+					moveForward(speed);
+					robot -> direction = LEFT;
+					break;
+    		}
+    	}
     return seq;
 }
 
@@ -188,6 +273,12 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
         vmap[current->val.x][current->val.y] = idc;
         current = current->next;
     }
+
+    if(get_my_id() != id) {
+    		return;
+    	}
+    Robot * r = get_robot_with_index(id - 1);
+    parse_path(path, r);
 }
 
 
@@ -202,3 +293,17 @@ void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
         }
 }
 
+Coordinate * get_nearest_coordinate(char vmap[HEIGHT][WIDTH], int row, int column) {
+	coordinate_node * unexplored;
+    unexplored = get_unexplored_coordinates(vmap, row, column);
+
+    if(is_coordinate_list_empty(unexplored)) {
+    	Coordinate * c = (Coordinate *) malloc(sizeof(Coordinate));
+    	c -> x = get_robot_with_index(get_my_id() - 1) -> coordinate -> x;
+    	c -> y = get_robot_with_index(get_my_id() - 1) -> coordinate -> y;
+    	return c;
+    }
+
+    return coordinate_list_last(get_nearest_unexplored(vmap, unexplored, row, column));
+
+}

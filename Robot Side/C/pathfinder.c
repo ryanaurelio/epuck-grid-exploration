@@ -141,8 +141,11 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
 }
 
 char * parse_path(coordinate_node * path, Robot * robot) {
-	char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
+    char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
 
+    if (is_coordinate_list_empty(path)) {
+        return seq;
+    }
 
     coordinate_node * current = path;
     int len = 0;
@@ -253,6 +256,12 @@ char * parse_path(coordinate_node * path, Robot * robot) {
 
 coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t) {
     coordinate_node * unexplored;
+
+    if (compare_coordinate(&s, &t)) {
+        new_coordinate_list(unexplored);
+        return unexplored;
+    }
+
     unexplored = (coordinate_node *) malloc(sizeof(coordinate_node));
     unexplored->val = t;
     unexplored->next = NULL;

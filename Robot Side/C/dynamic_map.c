@@ -126,7 +126,7 @@ char get_symbol_dmap(dmap * map, int x, int y) {
     dmap * current = map;
 
     while (current != NULL) {
-        if (x == current->row->coordinate.x)
+        if (y == current->row->coordinate.y)
             return get_symbol(current->row, x, y);
         current = current->next;
     }
@@ -138,7 +138,7 @@ void set_symbol_dmap(dmap * map, int x, int y, char symbol) {
     dmap * current = map;
 
     while (current != NULL) {
-        if (x == current->row->coordinate.x)
+        if (y == current->row->coordinate.y)
             set_symbol(current->row, x, y, symbol);
         current = current->next;
     }

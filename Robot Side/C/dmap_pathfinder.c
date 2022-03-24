@@ -79,13 +79,13 @@ coordinate_node * get_nearest_unexplored_dmap(dmap map, coordinate_node * unexpl
 
         while (p != NULL) {
             Coordinate * last = coordinate_list_last(p->val);
-            int currRow = last->x;
-            int currCol = last->y;
+            int cx = last->x;
+            int cy = last->y;
 
-            Coordinate south = {currRow+1, currCol};
-            Coordinate north = {currRow-1, currCol};
-            Coordinate west = {currRow, currCol-1};
-            Coordinate east = {currRow, currCol+1};
+            Coordinate south = {cx, cy-1};
+            Coordinate north = {cx, cy+1};
+            Coordinate west = {cx-1, cy};
+            Coordinate east = {cx+1, cy};
 
             if (coordinate_list_contains(unexploredCoordinates, &south)) {
                 push_coordinate_list(p->val, south);

@@ -144,9 +144,16 @@ void set_symbol_dmap(dmap * map, int x, int y, char symbol) {
     }
 }
 
+grid * map_last(dmap * map) {
+    dmap * current = map;
+    while (current->next != NULL)
+        current = current->next;
+    return current->row;
+}
+
 void expand_dmap(dmap ** map, int x, int y, char symbol) {
     // Bottom right coordinate
-    dmap * last = *map;
+    grid * last = map_last(*map);
     while (last->next != NULL) {
         last = last->next;
     }
@@ -163,12 +170,12 @@ void expand_dmap(dmap ** map, int x, int y, char symbol) {
         add_column_left(*map);
 
     // Coordinate on the right side of the map
-    int right_diff = x - last->row->coordinate.x;
+    int right_diff = x - last->coordinate.x;
     for (int i = 0; i < right_diff; i++)
         add_column_right(*map);
 
     // Coordinate below the map
-    int bot_diff = last->row->coordinate.y - y;
+    int bot_diff = last->coordinate.y - y;
     for (int i = 0; i < bot_diff; i++)
         add_row_bottom(*map);
 
@@ -188,13 +195,6 @@ int get_height(dmap * map) {
         current = current->next;
     }
     return height;
-}
-
-grid * map_last(dmap * map) {
-    dmap * current = map;
-    while (current->next != NULL)
-        current = current->next;
-    return current->row;
 }
 
 void add_row_top(dmap ** map) {

@@ -144,6 +144,38 @@ void set_symbol_dmap(dmap * map, int x, int y, char symbol) {
     }
 }
 
+void expand_dmap(dmap ** map, int x, int y, char symbol) {
+    // Bottom right coordinate
+    dmap * last = *map;
+    while (last->next != NULL) {
+        last = last->next;
+    }
+
+    // Expand map
+    // Coordinate above the map
+    int top_diff = y - (*map)->row->coordinate.y;
+    for (int i = 0; i < top_diff; i++)
+        add_row_top(map);
+
+    // Coordinate on the left side of the map
+    int left_diff = (*map)->row->coordinate.x - x;
+    for (int i = 0; i < left_diff; i++)
+        add_column_left(*map);
+
+    // Coordinate on the right side of the map
+    int right_diff = x - last->row->coordinate.x;
+    for (int i = 0; i < right_diff; i++)
+        add_column_right(*map);
+
+    // Coordinate below the map
+    int bot_diff = last->row->coordinate.y - y;
+    for (int i = 0; i < bot_diff; i++)
+        add_row_bottom(*map);
+
+    // Set symbol
+    set_symbol_dmap(*map, x, y, symbol);
+}
+
 int get_width(dmap * map) {
     return row_length(map->row);
 }
@@ -170,10 +202,11 @@ void add_row_top(dmap ** map) {
     row->symbol = 'u';
     Coordinate c = {(*map)->row->coordinate.x, (*map)->row->coordinate.y+1};
     row->coordinate = c;
+    row->next = NULL;
     for (int i = 0; i < row_length((*map)->row)-1; i++)
         push_back_symbol(row, 'u');
 
-    dmap * new_node = (dmap *) malloc(sizeof(dmap));;
+    dmap * new_node = (dmap *) malloc(sizeof(dmap));
     new_node->row = row;
     new_node->next = *map;
     *map = new_node;
@@ -184,6 +217,7 @@ void add_row_bottom(dmap * map) {
     row->symbol = 'u';
     Coordinate c = {map->row->coordinate.x, map_last(map)->coordinate.y-1};
     row->coordinate = c;
+    row->next = NULL;
     for (int i = 0; i < row_length(map->row)-1; i++)
         push_back_symbol(row, 'u');
 

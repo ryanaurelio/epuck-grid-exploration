@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "dmap_pathfinder.h"
-#include "map.h"
+#include "dynamic_map.h"
 #include "robot.h"
 #include "move.h"
 //#include "leds.h"
@@ -139,93 +139,94 @@ coordinate_node * get_nearest_unexplored_dmap(dmap map, coordinate_node * unexpl
     return empty;
 }
 
-void move_path(Robot * robot, char * seq, int len) {
-//    int speed = 550;
-//
-//    for (int i = 0; i < len; i++) {
-//        char movement = seq[i];
-//        switch(movement){
-//            case 'W':
-//                switch(robot -> direction) {
-//                case UP:
-//                    break;
-//                case DOWN:
-//                    turnLeft(speed);
-//                    turnLeft(speed);
-//                    break;
-//                case LEFT:
-//                    turnRight(speed);
-//                    break;
-//                case RIGHT:
-//                    turnLeft(speed);
-//                    break;
-//                }
-//                moveForward(speed);
-//                robot -> direction = UP;
-//                break;
-//            case 'S':
-//                switch(robot -> direction) {
-//                case UP:
-//                    turnLeft(speed);
-//                    turnLeft(speed);
-//                    break;
-//                case DOWN:
-//                    break;
-//                case LEFT:
-//                    turnLeft(speed);
-//                    break;
-//                case RIGHT:
-//                    turnRight(speed);
-//                    break;
-//                }
-//                moveForward(speed);
-//                robot -> direction = DOWN;
-//                break;
-//            case 'D':
-//                switch(robot -> direction) {
-//                case UP:
-//                    turnRight(speed);
-//                    break;
-//                case DOWN:
-//                    turnLeft(speed);
-//                    break;
-//                case LEFT:
-//                    turnLeft(speed);
-//                    turnLeft(speed);
-//                    break;
-//                case RIGHT:
-//                    break;
-//                }
-//                moveForward(speed);
-//                robot -> direction = RIGHT;
-//                break;
-//            case 'A':
-//                switch(robot -> direction) {
-//                case UP:
-//                    turnLeft(speed);
-//                    break;
-//                case DOWN:
-//                    turnRight(speed);
-//                    break;
-//                case LEFT:
-//                    break;
-//                case RIGHT:
-//                    turnLeft(speed);
-//                    turnLeft(speed);
-//                    break;
-//                }
-//                moveForward(speed);
-//                robot -> direction = LEFT;
-//                break;
-//        }
-//    }
+void move_path(Robot * robot, grid * seq) {
+    int speed = 550;
+
+    grid * current = seq;
+    while (current != NULL) {
+        char movement = current->symbol;
+        switch(movement){
+            case 'W':
+                switch(robot -> direction) {
+                    case UP:
+                        break;
+                    case DOWN:
+                        turnLeft(speed);
+                        turnLeft(speed);
+                        break;
+                    case LEFT:
+                        turnRight(speed);
+                        break;
+                    case RIGHT:
+                        turnLeft(speed);
+                        break;
+                }
+                moveForward(speed);
+                robot -> direction = UP;
+                break;
+            case 'S':
+                switch(robot -> direction) {
+                    case UP:
+                        turnLeft(speed);
+                        turnLeft(speed);
+                        break;
+                    case DOWN:
+                        break;
+                    case LEFT:
+                        turnLeft(speed);
+                        break;
+                    case RIGHT:
+                        turnRight(speed);
+                        break;
+                }
+                moveForward(speed);
+                robot -> direction = DOWN;
+                break;
+            case 'D':
+                switch(robot -> direction) {
+                    case UP:
+                        turnRight(speed);
+                        break;
+                    case DOWN:
+                        turnLeft(speed);
+                        break;
+                    case LEFT:
+                        turnLeft(speed);
+                        turnLeft(speed);
+                        break;
+                    case RIGHT:
+                        break;
+                }
+                moveForward(speed);
+                robot -> direction = RIGHT;
+                break;
+            case 'A':
+                switch(robot -> direction) {
+                    case UP:
+                        turnLeft(speed);
+                        break;
+                    case DOWN:
+                        turnRight(speed);
+                        break;
+                    case LEFT:
+                        break;
+                    case RIGHT:
+                        turnLeft(speed);
+                        turnLeft(speed);
+                        break;
+                }
+                moveForward(speed);
+                robot -> direction = LEFT;
+                break;
+        }
+        current = current->next;
+    }
 }
 
 void parse_path_dmap(coordinate_node * path, Robot * robot) {
-    char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
-    seq[0] = '0';
+    grid * seq = (grid *) malloc(sizeof(grid));
+    new_row(seq, 0, 0);
     coordinate_node * current = path;
-    int len = 0;
     while (current->next != NULL) {
 
         int px = current->val.x;
@@ -237,18 +238,17 @@ void parse_path_dmap(coordinate_node * path, Robot * robot) {
         int my = qy - py;
 
         if (my == 1)
-        	seq[len] = 'W';
+            push_back_symbol(seq, 'W');
         else if (mx == -1)
-        	seq[len] = 'A';
+            push_back_symbol(seq, 'A');
         else if (my == -1)
-        	seq[len] = 'S';
+            push_back_symbol(seq, 'S');
         else if (mx == 1)
-        	seq[len] = 'D';
+            push_back_symbol(seq, 'D');
 
         current = current->next;
-        len++;
     }
-    move_path(robot, seq, len);
+    move_path(robot, seq);
 }
 
 coordinate_node * find_path_dmap(dmap map, Coordinate s, Coordinate t) {

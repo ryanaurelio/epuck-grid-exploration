@@ -1,5 +1,5 @@
-#ifndef PATHFINDER_H
-#define PATHFINDER_H
+#ifndef DMAP_PATHFINDER_H
+#define DMAP_PATHFINDER_H
 
 #include <stdlib.h>
 
@@ -15,4 +15,4 @@ coordinate_node * get_unexplored_coordinates_dmap(dmap map, int x, int y);
 coordinate_node * get_nearest_unexplored_dmap(dmap map, coordinate_node * unexploredCoordinates, int x, int y);
 Coordinate * get_nearest_coordinate_dmap(dmap map, int x, int y);
 
-#endif //PATHFINDER_H
+#endif //DMAP_PATHFINDER_H

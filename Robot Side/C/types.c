@@ -1,3 +1,5 @@
+#include <limits.h>
+
 #include "types.h"
 
 // Robot list
@@ -70,7 +72,7 @@ int compare_coordinate(Coordinate * c1, Coordinate * c2) {
 }
 
 void print_coordinate(Coordinate * c) {
-    printf("(%d, %d)", c->x, c->y);
+    printf("(%3d, %3d)", c->x, c->y);
 }
 
 // Coordinate List
@@ -87,7 +89,7 @@ int coordinate_list_contains(coordinate_node * head, Coordinate * c) {
 }
 
 int is_coordinate_list_empty(coordinate_node * head) {
-    return head->val.x == -1 && head->val.y == -1 && head->next == NULL;
+    return head->val.x == INT_MIN && head->val.y == INT_MIN && head->next == NULL;
 }
 
 Coordinate * coordinate_list_last(coordinate_node * head) {
@@ -102,8 +104,8 @@ Coordinate * coordinate_list_last(coordinate_node * head) {
 void new_coordinate_list(coordinate_node * head) {
     Coordinate * c;
     c = (Coordinate *) malloc(sizeof(Coordinate));
-    c->x = -1;
-    c->y = -1;
+    c->x = INT_MIN;
+    c->y = INT_MIN;
     head->val = *c;
     head->next = NULL;
 }
@@ -146,9 +148,22 @@ coordinate_node * copy_coordinate_list(coordinate_node * head) {
     }
 }
 
+int coordinate_list_length(coordinate_node * head) {
+    if (is_coordinate_list_empty(head))
+        return 0;
+
+    coordinate_node * current = head;
+    int len = 0;
+    while (current != NULL) {
+        len++;
+        current = current->next;
+    }
+    return len;
+}
+
 // Path list
 int is_path_list_empty(path_node * head) {
-    return head->val->val.x == -1 && head->val->val.y == -1 && head->next == NULL;
+    return head->val->val.x == INT_MIN && head->val->val.y == INT_MIN && head->next == NULL;
 }
 
 void new_path_list(path_node * head) {

@@ -32,6 +32,7 @@ void print_dmap(dmap * map);
 char get_symbol_dmap(dmap * map, int x, int y);
 void set_symbol_dmap(dmap * map, int x, int y, char symbol);
 
+void expand_dmap(dmap ** map, int x, int y, char symbol);
 int get_width(dmap * map);
 int get_height(dmap * map);
 

@@ -43,7 +43,7 @@ coordinate_node * get_unexplored_coordinates_dmap(dmap map, int x, int y) {
     return unexplored;
 }
 
-int check_valid_coordinate(dmap map, coordinate_node * explored, Coordinate direction) {
+int check_valid_coordinate_dmap(dmap map, coordinate_node * explored, Coordinate direction) {
     char coordinateSymbol = get_symbol_dmap(&map, direction.x, direction.y);
     int inExplored = coordinate_list_contains(explored, &direction);
     int validSymbol = coordinateSymbol == 'o' || coordinateSymbol == '.';
@@ -104,25 +104,25 @@ coordinate_node * get_nearest_unexplored_dmap(dmap map, coordinate_node * unexpl
                 return p->val;
             }
 
-            if (check_valid_coordinate(map, explored, south)) {
+            if (check_valid_coordinate_dmap(map, explored, south)) {
                 push_coordinate_list(explored, south);
                 coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, south);
                 push_path_list(newPaths, newP);
             }
-            if (check_valid_coordinate(map, explored, north)) {
+            if (check_valid_coordinate_dmap(map, explored, north)) {
                 push_coordinate_list(explored, north);
                 coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, north);
                 push_path_list(newPaths, newP);
             }
-            if (check_valid_coordinate(map, explored, west)) {
+            if (check_valid_coordinate_dmap(map, explored, west)) {
                 push_coordinate_list(explored, west);
                 coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, west);
                 push_path_list(newPaths, newP);
             }
-            if (check_valid_coordinate(map, explored, east)) {
+            if (check_valid_coordinate_dmap(map, explored, east)) {
                 push_coordinate_list(explored, east);
                 coordinate_node * newP = copy_coordinate_list(p->val);
                 push_coordinate_list(newP, east);

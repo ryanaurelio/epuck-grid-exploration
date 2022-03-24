@@ -52,6 +52,7 @@ void new_coordinate_list(coordinate_node * head);
 void print_coordinate_list(coordinate_node * head);
 void push_coordinate_list(coordinate_node * head, Coordinate val);
 coordinate_node * copy_coordinate_list(coordinate_node * head);
+int coordinate_list_length(coordinate_node * head);
 
 // Path list
 typedef struct p_node {

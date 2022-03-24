@@ -5,7 +5,7 @@
 #include "types.h"
 #include "robot.h"
 #include "move.h"
-#include "leds.h"
+//#include "leds.h"
 
 void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node * reachable) {
     char symbol = vmap[row][column];
@@ -140,13 +140,9 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
     return empty;
 }
 
-char * parse_path(coordinate_node * path, Robot * robot) {
+void parse_path(coordinate_node * path, Robot * robot) {
     char * seq = (char*) malloc(HEIGHT * WIDTH * sizeof(char));
-
-    if (is_coordinate_list_empty(path)) {
-        return seq;
-    }
-
+    seq[0] = '0';
     coordinate_node * current = path;
     int len = 0;
     while (current->next != NULL) {
@@ -160,13 +156,13 @@ char * parse_path(coordinate_node * path, Robot * robot) {
         int c = qc - pc;
 
         if (r == -1)
-        	seq[len] = 'W';
+            seq[len] = 'W';
         else if (c == -1)
-        	seq[len] = 'A';
+            seq[len] = 'A';
         else if (r == 1)
-        	seq[len] = 'S';
+            seq[len] = 'S';
         else if (c == 1)
-        	seq[len] = 'D';
+            seq[len] = 'D';
 
         current = current->next;
         len++;
@@ -174,94 +170,87 @@ char * parse_path(coordinate_node * path, Robot * robot) {
 
     int speed = 550;
 
-    for(int i = 0; i < len; i++) {
-    		char movement = seq[i];
-    		switch(movement){
-				case 'W':
-					switch(robot -> direction) {
-					case UP:
-						break;
-					case DOWN:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case LEFT:
-						turnRight(speed);
-						break;
-					case RIGHT:
-						turnLeft(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = UP;
-					break;
-				case 'S':
-					switch(robot -> direction) {
-					case UP:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case DOWN:
-						break;
-					case LEFT:
-						turnLeft(speed);
-						break;
-					case RIGHT:
-						turnRight(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = DOWN;
-					break;
-				case 'D':
-					switch(robot -> direction) {
-					case UP:
-						turnRight(speed);
-						break;
-					case DOWN:
-						turnLeft(speed);
-						break;
-					case LEFT:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case RIGHT:
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = RIGHT;
-					break;
-				case 'A':
-					switch(robot -> direction) {
-					case UP:
-						turnLeft(speed);
-						break;
-					case DOWN:
-						turnRight(speed);
-						break;
-					case LEFT:
-						break;
-					case RIGHT:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = LEFT;
-					break;
-    		}
-    	}
-    return seq;
+    for (int i = 0; i < len; i++) {
+        char movement = seq[i];
+        switch(movement){
+            case 'W':
+                switch(robot -> direction) {
+                case UP:
+                    break;
+                case DOWN:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                case LEFT:
+                    turnRight(speed);
+                    break;
+                case RIGHT:
+                    turnLeft(speed);
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = UP;
+                break;
+            case 'S':
+                switch(robot -> direction) {
+                case UP:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                case DOWN:
+                    break;
+                case LEFT:
+                    turnLeft(speed);
+                    break;
+                case RIGHT:
+                    turnRight(speed);
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = DOWN;
+                break;
+            case 'D':
+                switch(robot -> direction) {
+                case UP:
+                    turnRight(speed);
+                    break;
+                case DOWN:
+                    turnLeft(speed);
+                    break;
+                case LEFT:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                case RIGHT:
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = RIGHT;
+                break;
+            case 'A':
+                switch(robot -> direction) {
+                case UP:
+                    turnLeft(speed);
+                    break;
+                case DOWN:
+                    turnRight(speed);
+                    break;
+                case LEFT:
+                    break;
+                case RIGHT:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = LEFT;
+                break;
+        }
+    }
 }
 
 coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t) {
     coordinate_node * unexplored;
-
-    if (compare_coordinate(&s, &t)) {
-        new_coordinate_list(unexplored);
-        return unexplored;
-    }
-
     unexplored = (coordinate_node *) malloc(sizeof(coordinate_node));
     unexplored->val = t;
     unexplored->next = NULL;
@@ -273,6 +262,10 @@ coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t
 }
 
 void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinate t) {
+    if (compare_coordinate(&s, &t))
+        return;
+
+
     coordinate_node * path = find_path(vmap, s, t);
     coordinate_node * current = path;
 
@@ -284,8 +277,8 @@ void move_robot_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate s, Coordinat
     }
 
     if(get_my_id() != id) {
-    		return;
-    	}
+        return;
+    }
     Robot * r = get_robot_with_index(id - 1);
     parse_path(path, r);
 }
@@ -303,14 +296,14 @@ void robot_moved_in_map(char vmap[HEIGHT][WIDTH], int id, Coordinate target) {
 }
 
 Coordinate * get_nearest_coordinate(char vmap[HEIGHT][WIDTH], int row, int column) {
-	coordinate_node * unexplored;
+    coordinate_node * unexplored;
     unexplored = get_unexplored_coordinates(vmap, row, column);
 
     if(is_coordinate_list_empty(unexplored)) {
-    	Coordinate * c = (Coordinate *) malloc(sizeof(Coordinate));
-    	c -> x = get_robot_with_index(get_my_id() - 1) -> coordinate -> x;
-    	c -> y = get_robot_with_index(get_my_id() - 1) -> coordinate -> y;
-    	return c;
+        Coordinate * c = (Coordinate *) malloc(sizeof(Coordinate));
+        c -> x = get_robot_with_index(get_my_id() - 1) -> coordinate -> x;
+        c -> y = get_robot_with_index(get_my_id() - 1) -> coordinate -> y;
+        return c;
     }
 
     return coordinate_list_last(get_nearest_unexplored(vmap, unexplored, row, column));

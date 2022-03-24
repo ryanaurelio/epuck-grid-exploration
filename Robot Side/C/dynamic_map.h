@@ -41,5 +41,6 @@ void add_row_bottom(dmap * map);
 void add_column_left(dmap * map);
 void add_column_right(dmap * map);
 
+int is_dmap_complete(dmap map);
 
 #endif //DYNAMIC_MAP_H

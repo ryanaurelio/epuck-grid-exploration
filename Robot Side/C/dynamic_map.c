@@ -246,3 +246,33 @@ void add_column_right(dmap * map) {
         current = current->next;
     }
 }
+
+void ff(dmap map, int x, int y, coordinate_node * reachable, int * is_complete) {
+    char symbol = get_symbol_dmap(&map, x, y);
+    if (symbol == 'u' || symbol == '0') {
+        *is_complete = 0;
+        return;
+    }
+    Coordinate c = {x, y};
+    if (symbol == 'x' || coordinate_list_contains(reachable, &c))
+        return;
+
+    push_coordinate_list(reachable, c);
+    ff(map, x, y-1, reachable, is_complete);     // South
+    ff(map, x, y+1, reachable, is_complete);     // North
+    ff(map, x-1, y, reachable, is_complete);     // West
+    ff(map, x+1, y, reachable, is_complete);     // East
+}
+
+int is_dmap_complete(dmap map) {
+    coordinate_node * reachable;
+    reachable = (coordinate_node *) malloc(sizeof(coordinate_node));
+    new_coordinate_list(reachable);
+
+    int * is_complete = (int *) malloc(sizeof(int));
+    * is_complete = 1;
+
+    ff(map, 0, 0, reachable, is_complete);
+
+    return * is_complete;
+}

@@ -274,5 +274,9 @@ int is_dmap_complete(dmap map) {
 
     ff(map, 0, 0, reachable, is_complete);
 
-    return * is_complete;
+    int retval = * is_complete;
+
+    free(reachable);
+    free(is_complete);
+    return retval;
 }

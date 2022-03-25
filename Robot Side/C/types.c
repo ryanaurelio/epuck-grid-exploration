@@ -200,3 +200,44 @@ void push_path_list(path_node * head, coordinate_node * val) {
         current->next->next = NULL;
     }
 }
+
+void new_sound_list(sound_node *head) {
+	head -> sound = -1;
+	head -> next = NULL;
+
+}
+int is_sound_list_empty(sound_node * head) {
+	return (head) -> sound == -1;
+}
+
+int pop_sound_list(sound_node ** head) {
+    if(is_sound_list_empty(*head)) {
+    	return (*head) -> sound;
+    }
+    else if((*head) -> next == NULL) {
+    	int sound = -1;
+    	new_sound_list((*head));
+    	return sound;
+    }
+    else {
+		sound_node * new_head = (*head) -> next;
+
+		int sound = (*head) -> sound;
+		free(*head);
+		*head = new_head;
+		return sound;
+    }
+}
+
+void push_sound_list(sound_node ** head, int val) {
+	if (is_sound_list_empty((*head))) {
+		(*head) -> sound = val;
+		return;
+	}
+
+	sound_node * new_head = (sound_node *) malloc(sizeof(sound_node));
+	new_head -> sound = val;
+	new_head -> next = *head;
+	(*head) = new_head;
+}
+

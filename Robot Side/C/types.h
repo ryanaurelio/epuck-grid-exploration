@@ -65,4 +65,15 @@ void new_path_list(path_node * head);
 void print_path_list(path_node * head);
 void push_path_list(path_node * head, coordinate_node * val);
 
+typedef struct s_node {
+	int sound;
+	struct s_node * next;
+} sound_node;
+
+void new_sound_list(sound_node *head);
+int is_sound_list_empty(sound_node * head);
+int pop_sound_list(sound_node ** head);
+void push_sound_list(sound_node ** head, int val);
+
+
 #endif //TYPES_H

@@ -279,3 +279,31 @@ int is_dmap_complete(dmap map) {
     free(is_complete);
     return retval;
 }
+
+int is_dmap_complete_optimized(dmap map) {
+    dmap * current_row = &map;
+    while (current_row != NULL) {
+        grid * current_c = current_row->row;
+        while (current_c != NULL) {
+            char symbol = current_c->symbol;
+            if (symbol == '.') return 0;
+            if (symbol != 'o' && symbol != '0' && symbol != 'x' && symbol != 'u'){
+                // East
+                char east = get_symbol_dmap(&map, current_c->coordinate.x+1, current_c->coordinate.y);
+                if (east == 'u' || east == '0') return 0;
+                // South
+                char south = get_symbol_dmap(&map, current_c->coordinate.x, current_c->coordinate.y-1);
+                if (south == 'u' || south == '0') return 0;
+                // West
+                char west = get_symbol_dmap(&map, current_c->coordinate.x-1, current_c->coordinate.y);
+                if (west == 'u' || west == '0') return 0;
+                // North
+                char north = get_symbol_dmap(&map, current_c->coordinate.x, current_c->coordinate.y+1);
+                if (north == 'u' || north == '0') return 0;
+            }
+            current_c = current_c->next;
+        }
+        current_row = current_row->next;
+    }
+    return 1;
+}

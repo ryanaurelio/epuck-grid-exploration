@@ -245,6 +245,8 @@ void add_column_right(dmap * map) {
 }
 
 void ff(dmap map, int x, int y, coordinate_node * reachable, int * is_complete) {
+    if (!is_complete)
+        return;
     char symbol = get_symbol_dmap(&map, x, y);
     if (symbol == 'u' || symbol == '0' || symbol == '.') {
         *is_complete = 0;

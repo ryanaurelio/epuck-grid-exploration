@@ -151,7 +151,7 @@ grid * map_last(dmap * map) {
     return current->row;
 }
 
-void expand_dmap(dmap ** map, int x, int y, char symbol) {
+void expand_dmap(dmap ** map, int x, int y) {
     // Bottom right coordinate
     grid * last = map_last(*map);
     while (last->next != NULL) {
@@ -178,9 +178,6 @@ void expand_dmap(dmap ** map, int x, int y, char symbol) {
     int bot_diff = last->coordinate.y - y;
     for (int i = 0; i < bot_diff; i++)
         add_row_bottom(*map);
-
-    // Set symbol
-    set_symbol_dmap(*map, x, y, symbol);
 }
 
 int get_width(dmap * map) {
@@ -249,7 +246,7 @@ void add_column_right(dmap * map) {
 
 void ff(dmap map, int x, int y, coordinate_node * reachable, int * is_complete) {
     char symbol = get_symbol_dmap(&map, x, y);
-    if (symbol == 'u' || symbol == '0') {
+    if (symbol == 'u' || symbol == '0' || symbol == '.') {
         *is_complete = 0;
         return;
     }

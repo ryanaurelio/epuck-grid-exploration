@@ -330,7 +330,8 @@ Coordinate * get_nearest_coordinate_dmap(dmap map, int x, int y) {
     new_coordinate_list(reachable);
 
     Coordinate * unexplored = (Coordinate *) malloc(sizeof(Coordinate));
-    unexplored = get_robot_with_index(get_my_id() - 1)->coordinate;
+    unexplored->x = get_robot_with_index(get_my_id() - 1)->coordinate->x;
+    unexplored->y = get_robot_with_index(get_my_id() - 1)->coordinate->y;
 
     int * is_found = (int *) malloc(sizeof(int));
     * is_found = 0;

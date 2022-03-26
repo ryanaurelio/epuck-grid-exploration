@@ -21,6 +21,31 @@ void flood_fill_dmap(dmap map, int x, int y, coordinate_node * reachable) {
     flood_fill_dmap(map, x+1, y, reachable);     // East
 }
 
+
+void ff_unexplored(dmap map, int x, int y, coordinate_node * reachable, Coordinate * unexplored, int * is_found) {
+    if (* is_found) return;
+
+    char symbol = get_symbol_dmap(&map, x, y);
+    Coordinate c = {x, y};
+
+    if (symbol == '.') {
+        unexplored->x = c.x;
+        unexplored->y = c.y;
+        * is_found = 1;
+        return;
+    }
+
+    char id = (char) (get_my_id() - 208);
+    if (!(symbol == 'o' || symbol == id) || symbol == '0' || coordinate_list_contains(reachable, &c))
+        return;
+
+    push_coordinate_list(reachable, c);
+    ff_unexplored(map, x, y-1, reachable, unexplored, is_found);     // South
+    ff_unexplored(map, x, y+1, reachable, unexplored, is_found);     // North
+    ff_unexplored(map, x-1, y, reachable, unexplored, is_found);     // West
+    ff_unexplored(map, x+1, y, reachable, unexplored, is_found);     // East
+}
+
 coordinate_node * get_unexplored_coordinates_dmap(dmap map, int x, int y) {
     coordinate_node * reachable;
     reachable = (coordinate_node *) malloc(sizeof(coordinate_node));
@@ -140,87 +165,87 @@ coordinate_node * get_nearest_unexplored_dmap(dmap map, coordinate_node * unexpl
 }
 
 void move_path(Robot * robot, grid * seq) {
-    int speed = 550;
-
-    grid * current = seq;
-    while (current != NULL) {
-        char movement = current->symbol;
-        switch(movement){
-            case 'W':
-                switch(robot -> direction) {
-                    case UP:
-                        break;
-                    case DOWN:
-                        turnLeft(speed);
-                        turnLeft(speed);
-                        break;
-                    case LEFT:
-                        turnRight(speed);
-                        break;
-                    case RIGHT:
-                        turnLeft(speed);
-                        break;
-                }
-                moveForward(speed);
-                robot -> direction = UP;
-                break;
-            case 'S':
-                switch(robot -> direction) {
-                    case UP:
-                        turnLeft(speed);
-                        turnLeft(speed);
-                        break;
-                    case DOWN:
-                        break;
-                    case LEFT:
-                        turnLeft(speed);
-                        break;
-                    case RIGHT:
-                        turnRight(speed);
-                        break;
-                }
-                moveForward(speed);
-                robot -> direction = DOWN;
-                break;
-            case 'D':
-                switch(robot -> direction) {
-                    case UP:
-                        turnRight(speed);
-                        break;
-                    case DOWN:
-                        turnLeft(speed);
-                        break;
-                    case LEFT:
-                        turnLeft(speed);
-                        turnLeft(speed);
-                        break;
-                    case RIGHT:
-                        break;
-                }
-                moveForward(speed);
-                robot -> direction = RIGHT;
-                break;
-            case 'A':
-                switch(robot -> direction) {
-                    case UP:
-                        turnLeft(speed);
-                        break;
-                    case DOWN:
-                        turnRight(speed);
-                        break;
-                    case LEFT:
-                        break;
-                    case RIGHT:
-                        turnLeft(speed);
-                        turnLeft(speed);
-                        break;
-                }
-                moveForward(speed);
-                robot -> direction = LEFT;
-                break;
-        }
-        current = current->next;
-    }
+//    int speed = 550;
+//
+//    grid * current = seq;
+//    while (current != NULL) {
+//        char movement = current->symbol;
+//        switch(movement){
+//            case 'W':
+//                switch(robot -> direction) {
+//                    case UP:
+//                        break;
+//                    case DOWN:
+//                        turnLeft(speed);
+//                        turnLeft(speed);
+//                        break;
+//                    case LEFT:
+//                        turnRight(speed);
+//                        break;
+//                    case RIGHT:
+//                        turnLeft(speed);
+//                        break;
+//                }
+//                moveForward(speed);
+//                robot -> direction = UP;
+//                break;
+//            case 'S':
+//                switch(robot -> direction) {
+//                    case UP:
+//                        turnLeft(speed);
+//                        turnLeft(speed);
+//                        break;
+//                    case DOWN:
+//                        break;
+//                    case LEFT:
+//                        turnLeft(speed);
+//                        break;
+//                    case RIGHT:
+//                        turnRight(speed);
+//                        break;
+//                }
+//                moveForward(speed);
+//                robot -> direction = DOWN;
+//                break;
+//            case 'D':
+//                switch(robot -> direction) {
+//                    case UP:
+//                        turnRight(speed);
+//                        break;
+//                    case DOWN:
+//                        turnLeft(speed);
+//                        break;
+//                    case LEFT:
+//                        turnLeft(speed);
+//                        turnLeft(speed);
+//                        break;
+//                    case RIGHT:
+//                        break;
+//                }
+//                moveForward(speed);
+//                robot -> direction = RIGHT;
+//                break;
+//            case 'A':
+//                switch(robot -> direction) {
+//                    case UP:
+//                        turnLeft(speed);
+//                        break;
+//                    case DOWN:
+//                        turnRight(speed);
+//                        break;
+//                    case LEFT:
+//                        break;
+//                    case RIGHT:
+//                        turnLeft(speed);
+//                        turnLeft(speed);
+//                        break;
+//                }
+//                moveForward(speed);
+//                robot -> direction = LEFT;
+//                break;
+//        }
+//        current = current->next;
+//    }
 }
 
 void parse_path_dmap(coordinate_node * path, Robot * robot) {
@@ -298,12 +323,20 @@ void robot_moved_in_dmap(dmap map, int id, Coordinate target) {
     }
 }
 
+
 Coordinate * get_nearest_coordinate_dmap(dmap map, int x, int y) {
-	coordinate_node * unexplored;
-    unexplored = get_unexplored_coordinates_dmap(map, x, y);
+    coordinate_node * reachable;
+    reachable = (coordinate_node *) malloc(sizeof(coordinate_node));
+    new_coordinate_list(reachable);
 
-    if(is_coordinate_list_empty(unexplored))
-    	return get_robot_with_index(get_my_id()-1)->coordinate;
+    Coordinate * unexplored = (Coordinate *) malloc(sizeof(Coordinate));
+    int * is_found = (int *) malloc(sizeof(int));
+    * is_found = 0;
 
-    return coordinate_list_last(get_nearest_unexplored_dmap(map, unexplored, x, y));
+    ff_unexplored(map, x, y, reachable, unexplored, is_found);
+
+    free(reachable);
+    free(is_found);
+
+    return unexplored;
 }

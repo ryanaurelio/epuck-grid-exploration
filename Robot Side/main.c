@@ -735,6 +735,7 @@ static THD_FUNCTION(selector_thd, arg) {
 					int pos_y = saved_coordinate[2];
 					int indicator = saved_coordinate[3];
 					check_map(&map, pos_x, pos_y);
+					go_work();
 
 					/*
 					 * num: 0 for wall, 1 for unexplored, 2 for exploring.
@@ -748,7 +749,7 @@ static THD_FUNCTION(selector_thd, arg) {
 					}
 
 					if (indicator == 2) {
-						go_work();
+// 						go_work();
 						Coordinate * new_coordinate = (Coordinate*) malloc(sizeof(Coordinate));
 						new_coordinate -> x = pos_x;
 						new_coordinate -> y = pos_y;

@@ -32,7 +32,7 @@ void print_dmap(dmap * map);
 char get_symbol_dmap(dmap * map, int x, int y);
 void set_symbol_dmap(dmap * map, int x, int y, char symbol);
 
-void expand_dmap(dmap ** map, int x, int y, char symbol);
+void expand_dmap(dmap ** map, int x, int y);
 int get_width(dmap * map);
 int get_height(dmap * map);
 
@@ -42,5 +42,6 @@ void add_column_left(dmap * map);
 void add_column_right(dmap * map);
 
 int is_dmap_complete(dmap map);
+int is_dmap_complete_optimized(dmap map);
 
 #endif //DYNAMIC_MAP_H

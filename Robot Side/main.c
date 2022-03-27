@@ -67,13 +67,9 @@ float32_t fft_max_value;
 
 int connectPhase = 1;
 int canBroadcast = 0;
-int is_complete = 0;
 int id = 1;
-//char vmap[HEIGHT][WIDTH];
 dmap * map;
 
-//TODO di connect awal tiap masukin id baru harus nambah peta.
-//TODO abis waktu broadcast jg nambah peta
 
 int listen(void) {
 	// Detect frequencies with FFT and playback tones based on the distance from ToF.
@@ -92,7 +88,24 @@ int listen(void) {
 
 void bc(int number) {
 	chThdSleepMilliseconds(50);
-	dac_play((number * 200) + 1350);
+//	switch(number) {
+//	case 0:
+//		dac_play(1275);
+//		break;
+//	case 1:
+//		dac_play(1500);
+//		break;
+//	case 2:
+//		dac_play(1700);
+//		break;
+//
+////	case 3:
+//	default:
+//		dac_play((number * 200) + 1325);
+//		break;
+//
+//	}
+	dac_play((number * 300) + 1350);
 	chThdSleepMilliseconds(200);
 	dac_stop();
 	chThdSleepMilliseconds(375);
@@ -103,7 +116,12 @@ void broadcast_num(int number, int can_be_negative) {
 	if (can_be_negative) {
 		if (num >= 0) {
 			bc(0);
+			//add here
+			bc(0);
 		} else {
+			//add here
+			bc(0);
+
 			bc(1);
 			num = -1 * num;
 		}
@@ -111,11 +129,13 @@ void broadcast_num(int number, int can_be_negative) {
 	if (num == 0) {
 		 bc(0);
 	} else {
-		int num_list[(int)sqrt(num)];
+		int num_list[(int)sqrt(num) + 1];
 		int index = 0;
 		while(num != 0) {
-			num_list[index] = (num % 3);
-			num = num / 3;
+//			num_list[index] = (num % 3);
+//			num = num / 3;
+			num_list[index] = (num % 2);
+			num = num / 2;
 			index++;
 		}
 
@@ -130,19 +150,28 @@ void broadcast(int x, int y, int num) {
 	 * num: 0 for wall, 1 for unexplored, 2 for exploring.
 	 */
 	broadcast_num(get_my_id(), 0);
-	bc(3);
+//	bc(3);
+	bc(2);
 	broadcast_num(x, 1);
-	bc(3);
+//	bc(3);
+	bc(2);
 	broadcast_num(y, 1);
-	bc(3);
+//	bc(3);
+	bc(2);
 	broadcast_num(num, 0);
-	bc(3);
+//	bc(3);
+	bc(2);
 }
 
 void broadcast_done(void) {
 	broadcast_num(get_my_id(), 0);
-	bc(3);
-	bc(3);
+//	bc(3);
+	bc(2);
+//	bc(2);
+	bc(1);
+	bc(1);
+//	bc(3);
+	bc(2);
 }
 
 int checkBroadcast(int number) {
@@ -199,14 +228,14 @@ void check_wall(void) {
 			case UP:
 				check_map(&map, pos_x, pos_y + 1);
 				if (get_symbol_dmap(map, pos_x, pos_y + 1) == 'u') {
-					if(checkBroadcast(1)) {
+					if(checkBroadcast(2 + (0.2 * get_my_id()))) {
 						if (sum / 25 < (80 + 35)) {
 							set_symbol_dmap(map, pos_x, pos_y + 1, 'x');
-//								broadcast(pos_x, pos_y + 1, 0);
+								broadcast(pos_x, pos_y + 1, 0);
 						} else {
 							//TODO broadcast
 							set_symbol_dmap(map, pos_x, pos_y + 1, '.');
-//							broadcast(pos_x, pos_y + 1, 1);
+							broadcast(pos_x, pos_y + 1, 1);
 						}
 						canBroadcast = 0;
 					}
@@ -215,14 +244,14 @@ void check_wall(void) {
 			case DOWN:
 				check_map(&map, pos_x, pos_y - 1);
 				if (get_symbol_dmap(map, pos_x, pos_y - 1) == 'u') {
-					if(checkBroadcast(1)) {
+					if(checkBroadcast(2 + (0.2 * get_my_id()))) {
 						if (sum / 25 < (80 + 35)) {
 							set_symbol_dmap(map, pos_x, pos_y - 1, 'x');
-//							broadcast(pos_x, pos_y - 1, 0);
+							broadcast(pos_x, pos_y - 1, 0);
 						} else {
 							//TODO broadcast
 							set_symbol_dmap(map, pos_x, pos_y - 1, '.');
-//							broadcast(pos_x, pos_y - 1, 1);
+							broadcast(pos_x, pos_y - 1, 1);
 						}
 						canBroadcast = 0;
 					}
@@ -231,14 +260,14 @@ void check_wall(void) {
 			case LEFT:
 				check_map(&map, pos_x - 1, pos_y);
 				if (get_symbol_dmap(map, pos_x - 1, pos_y) == 'u') {
-					if(checkBroadcast(1)) {
+					if(checkBroadcast(2 + (0.2 * get_my_id()))) {
 						if (sum / 25 < (80 + 35)) {
 							set_symbol_dmap(map, pos_x - 1, pos_y, 'x');
-//							broadcast(pos_x - 1, pos_y, 0);
+							broadcast(pos_x - 1, pos_y, 0);
 						} else {
 							//TODO broadcast
 							set_symbol_dmap(map, pos_x - 1, pos_y, '.');
-//							broadcast(pos_x - 1, pos_y, 1);
+							broadcast(pos_x - 1, pos_y, 1);
 						}
 					canBroadcast = 0;
 					}
@@ -247,14 +276,14 @@ void check_wall(void) {
 			case RIGHT:
 				check_map(&map, pos_x + 1, pos_y);
 				if (get_symbol_dmap(map, pos_x + 1, pos_y) == 'u') {
-					if(checkBroadcast(1)) {
+					if(checkBroadcast(2 + (0.2 * get_my_id()))) {
 						if (sum / 25 < (80 + 35)) {
 							set_symbol_dmap(map, pos_x + 1, pos_y, 'x');
-//							broadcast(pos_x + 1, pos_y, 0);
+							broadcast(pos_x + 1, pos_y, 0);
 						} else {
 							//TODO broadcast
 							set_symbol_dmap(map, pos_x + 1, pos_y, '.');
-//							broadcast(pos_x + 1, pos_y, 1);
+							broadcast(pos_x + 1, pos_y, 1);
 						}
 						canBroadcast = 0;
 					}
@@ -265,105 +294,86 @@ void check_wall(void) {
 	}
 }
 
-static THD_FUNCTION(complete_thd, arg) {
-    (void) arg;
-    chRegSetThreadName(__FUNCTION__);
-
-    while(1) {
-    	is_complete = is_dmap_complete(*map);
-    	chThdSleepMilliseconds(42);
-    }
-}
-
-//static THD_FUNCTION(yeye_thd, arg) {
-//    (void) arg;
-//    chRegSetThreadName(__FUNCTION__);
-//
-//    while(1) {
-////		if(pos_x == -1 && pos_y == 0) {
-////			set_body_led(1);
-////			chThdSleepMilliseconds(10);
-////			set_body_led(0);
-////		}
-//
-//		if(get_symbol_dmap(map, 0, 0) == '1' && get_symbol_dmap(map, 1, 0) == '2') {
-//			set_body_led(1);
-//			chThdSleepMilliseconds(10);
-//			set_body_led(0);
-//			chThdSleepMilliseconds(10);
-//		}
-//    }
-//}
-
 static THD_FUNCTION(working_thd, arg) {
     (void) arg;
     chRegSetThreadName(__FUNCTION__);
 
+    int is_complete = 0;
+    while(1) {
+    	if(is_complete) {
+    		break;
+    	}
+		if(!connectPhase) {
 
-	while(!is_complete) {
+			 if(can_work()) {
 
-    	if(!connectPhase) {
-
-    		 if(can_work()) {
-    			 //adding this
- 				chThdSleepMilliseconds(500);
-    			check_wall();
-
-
-				set_rgb_led(LED2, 0, 0 ,1);
-				Coordinate * nearestCoordinate;
-				go_work();
-
-				nearestCoordinate = get_nearest_coordinate_dmap(*map, get_robot_with_index(get_my_id() - 1) -> coordinate -> x ,
-						get_robot_with_index(get_my_id() - 1) -> coordinate -> y);
-
-				if(checkBroadcast(1)) {
-					//2 means robot move
-					broadcast((int)nearestCoordinate -> x, (int)nearestCoordinate -> y, 2);
-
-				    canBroadcast = 0;
-				    chThdSleepMilliseconds(100);
-
-				    move_robot_in_dmap(*map, get_my_id(), *get_robot_with_index(get_my_id() - 1) -> coordinate, *nearestCoordinate);
-
-				    if(get_symbol_dmap(map, 0, -2) == '1') {
-				    				    	set_body_led(1);
-				    				    }
-				    	set_front_led(1);
-				    	chThdSleepMilliseconds(1000);
-				    	set_front_led(0);
+				 if(!is_dmap_complete(*map)) {
 
 
+					 //adding this
+					chThdSleepMilliseconds(500);
+					check_wall();
+					chThdSleepMilliseconds(300);
 
-					get_robot_with_index(get_my_id() - 1) -> coordinate->x = nearestCoordinate -> x;
-					get_robot_with_index(get_my_id() - 1) -> coordinate->y = nearestCoordinate -> y;
-				}
+					set_rgb_led(LED2, 0, 0 ,1);
+					Coordinate * nearestCoordinate;
+					go_work();
 
-				while(1) {
+					nearestCoordinate = get_nearest_coordinate_dmap(*map, get_robot_with_index(get_my_id() - 1) -> coordinate -> x ,
+							get_robot_with_index(get_my_id() - 1) -> coordinate -> y);
 
-					if(checkBroadcast(3 + (0.2 * get_my_id()))) {
-						set_rgb_led(LED4, 0, 1, 0);
-						//this is broadcast for free.
-						//adding this
-						broadcast_done();
-						robot_moved_in_dmap(*map, get_my_id(), *get_robot_with_index(get_my_id() - 1) -> coordinate);
-						push_to_free_robots_list(get_robot_with_index(get_my_id() - 1));
+
+					if(checkBroadcast(5 + (0.2 * get_my_id()))) {
+						//2 means robot move
+						broadcast((int)nearestCoordinate -> x, (int)nearestCoordinate -> y, 2);
+
 						canBroadcast = 0;
-						set_rgb_led(LED4, 0, 0, 0);
-						break;
+						chThdSleepMilliseconds(100);
+
+
+						move_robot_in_dmap(*map, get_my_id(), *get_robot_with_index(get_my_id() - 1) -> coordinate, *nearestCoordinate);
+
+
+
+//						if(get_symbol_dmap(map, 0, -2) == '1') {
+//												set_body_led(1);
+//											}
+//							set_front_led(1);
+//							chThdSleepMilliseconds(1000);
+//							set_front_led(0);
+
+
+
+						get_robot_with_index(get_my_id() - 1) -> coordinate->x = nearestCoordinate -> x;
+						get_robot_with_index(get_my_id() - 1) -> coordinate->y = nearestCoordinate -> y;
 					}
+
+					while(1) {
+
+						if(checkBroadcast(3 + (0.2 * get_my_id()))) {
+							set_rgb_led(LED4, 0, 1, 0);
+							//this is broadcast for free.
+							//adding this
+							broadcast_done();
+							robot_moved_in_dmap(*map, get_my_id(), *get_robot_with_index(get_my_id() - 1) -> coordinate);
+							push_to_free_robots_list(get_robot_with_index(get_my_id() - 1));
+							canBroadcast = 0;
+							set_rgb_led(LED4, 0, 0, 0);
+							break;
+						}
+					}
+				} else {
+					is_complete = 1;
+//					break;
 				}
 			}
-       	}
-    	//very important!
-    else {
-    	set_rgb_led(LED6, 0, 0 , 1);
-    	}
+		}
+			//very important!
+		else {
+			set_rgb_led(LED6, 0, 0 , 1);
+		}
     }
 
-    if(get_symbol_dmap(map, 0, 0) == '1' && get_symbol_dmap(map, 1, 0) == '2') {
-    	set_body_led(1);
-    }
     set_rgb_led(LED6,0, 0, 0);
 	set_front_led(1);
 	chThdSleepMilliseconds(5000);
@@ -531,10 +541,10 @@ static THD_FUNCTION(selector_thd, arg) {
 	new_sound_list(sounds);
 	int saved_coordinate[4];
 	int index = 0;
+	while(1) {
 
-	while(!is_complete) {
-
-			if(!canBroadcast && !connectPhase) {
+		if(!canBroadcast && !connectPhase) {
+//			if(!is_dmap_complete(*map)) {
 
 				rgb_from_freq = listen();
 
@@ -543,23 +553,41 @@ static THD_FUNCTION(selector_thd, arg) {
 				set_led(LED7, 0);
 				set_led(LED3, 0);
 
-				if( rgb_from_freq > 1200 && rgb_from_freq < 1400) {
+//				if( rgb_from_freq > 1200 && rgb_from_freq < 1400) {
+//					push_sound_list(&sounds, 0);
+//					set_led(LED1, 1);
+//					chThdSleepMilliseconds(425);
+//				}
+//
+//				else if(rgb_from_freq >= 1400 && rgb_from_freq < 1600) {
+//					push_sound_list(&sounds, 1);
+//					set_led(LED3, 1);
+//					chThdSleepMilliseconds(425);
+//				}
+//
+//				else if(rgb_from_freq >= 1600 && rgb_from_freq < 1800) {
+//					push_sound_list(&sounds, 2);
+//					set_led(LED5, 1);
+//					chThdSleepMilliseconds(425);
+//				}
+
+				if( rgb_from_freq > 1200 && rgb_from_freq < 1500) {
 					push_sound_list(&sounds, 0);
 					set_led(LED1, 1);
 					chThdSleepMilliseconds(425);
 				}
 
-				else if(rgb_from_freq >= 1400 && rgb_from_freq < 1600) {
+				else if(rgb_from_freq >= 1500 && rgb_from_freq < 1800) {
 					push_sound_list(&sounds, 1);
 					set_led(LED3, 1);
 					chThdSleepMilliseconds(425);
 				}
 
-				else if(rgb_from_freq >= 1600 && rgb_from_freq < 1800) {
-					push_sound_list(&sounds, 2);
-					set_led(LED5, 1);
-					chThdSleepMilliseconds(425);
-				}
+//				else if(rgb_from_freq >= 1600 && rgb_from_freq < 1800) {
+//					push_sound_list(&sounds, 2);
+//					set_led(LED5, 1);
+//					chThdSleepMilliseconds(425);
+//				}
 
 				else if(rgb_from_freq >= 1800 && rgb_from_freq < 2100) {
 					push_sound_list(&sounds, 10);
@@ -581,47 +609,123 @@ static THD_FUNCTION(selector_thd, arg) {
 
 
 				if(sounds -> sound == 10) {
-
+					int is_done = 0;
+					int is_complete = 0;
 					pop_sound_list(&sounds);
 
-					//for done
-					if (sounds -> sound == 10) {
-						index = 0;
+					int sum = 0;
+					int pow = 0;
+					while(!is_sound_list_empty(sounds)) {
 
-						robot_moved_in_dmap(*map, saved_coordinate[0], *get_robot_with_index(saved_coordinate[0] - 1) -> coordinate);
+						set_body_led(1);
+						chThdSleepMilliseconds(20);
+						set_body_led(0);
 
-						push_to_free_robots_list(get_robot_with_index(saved_coordinate[0] - 1));
-					}
-					//for separator
-					else {
-						int sum = 0;
-						int pow = 0;
-						while(!is_sound_list_empty(sounds)) {
+//						int num = pop_sound_list(&sounds);
+//						if (sounds -> next == NULL && (index == 1 || index == 2)) {
+//							int num1 = pop_sound_list(&sounds);
+//							if (num1 == 0 && num == 1) {
+//								sum = -sum;
+//							}
+//							if(num1 == 1 && num == 1) {
+//								index = 0;
+//								is_done = 1;
+//								robot_moved_in_dmap(*map, saved_coordinate[0], *get_robot_with_index(saved_coordinate[0] - 1) -> coordinate);
+//								push_to_free_robots_list(get_robot_with_index(saved_coordinate[0] - 1));
+//
+//								if(is_dmap_complete(*map)) {
+//									is_complete = 1;
+//								}
+//							}
+//						} else {
+//							for(int i = 0; i < pow; i++) {
+//								num *= 2;
+//							}
+//							sum += num;
+//							pow++;
+//						}
 
-							set_body_led(1);
-							chThdSleepMilliseconds(20);
-							set_body_led(0);
 
-							if (sounds -> next == NULL && (index == 1 || index == 2)) {
-								int num = pop_sound_list(&sounds);
-								if (num == 1) {
+//						if (sounds -> next == NULL && (index == 1 || index == 2)) {
+						if(index == 1 || index == 2) {
+							if (sounds -> next -> next == NULL) {
+
+	//							int num = pop_sound_list(&sounds);
+								int num2 = pop_sound_list(&sounds);
+								int num1 = pop_sound_list(&sounds);
+
+								if (num1 == 0 && num2 == 1) {
 									sum = -sum;
+								}
+								if(num1 == 1 && num2 == 1) {
+									index = 0;
+									is_done = 1;
+
+									robot_moved_in_dmap(*map, saved_coordinate[0], *get_robot_with_index(saved_coordinate[0] - 1) -> coordinate);
+
+									push_to_free_robots_list(get_robot_with_index(saved_coordinate[0] - 1));
+
+									if(is_dmap_complete(*map)) {
+										is_complete = 1;
+									}
 								}
 							} else {
 								int num = pop_sound_list(&sounds);
 								for(int i = 0; i < pow; i++) {
-									num *= 3;
+	//								num *= 3;
+									num *= 2;
 								}
 								sum += num;
 								pow++;
 							}
+
+
+//							if (num == 1) {
+//								sum = -sum;
+//							}
+//							if (num == 2) {
+//								index = 0;
+//
+//								robot_moved_in_dmap(*map, saved_coordinate[0], *get_robot_with_index(saved_coordinate[0] - 1) -> coordinate);
+//
+//								push_to_free_robots_list(get_robot_with_index(saved_coordinate[0] - 1));
+//
+//								if(is_dmap_complete(*map)) {
+//									is_complete = 1;
+//								}
+//							}
+						} else {
+							int num = pop_sound_list(&sounds);
+							for(int i = 0; i < pow; i++) {
+//								num *= 3;
+								num *= 2;
+							}
+							sum += num;
+							pow++;
 						}
-
-						saved_coordinate[index] = sum;
-
-						index++;
 					}
+
+					saved_coordinate[index] = sum;
+
+					if(!is_done) {
+						index++;
+					} else {
+						is_done = 0;
+					}
+
+
+					if(index == 1 || index == 2) {
+						set_front_led(1);
+					} else {
+						set_front_led(0);
+					}
+
+					if(is_complete)
+						break;
 				}
+
+
+//				}
 
 //for fulfilling the saved_coordinate.
 				if (index == 4) {
@@ -636,23 +740,10 @@ static THD_FUNCTION(selector_thd, arg) {
 					 * num: 0 for wall, 1 for unexplored, 2 for exploring.
 					 */
 					if (indicator == 0) {
-
-//						set_body_led(1);
-//						chThdSleepMilliseconds(20);
-//						set_body_led(0);
 						set_symbol_dmap(map, pos_x, pos_y, 'x');
 
 					}
 					if (indicator == 1) {
-
-//						set_front_led(1);
-//						chThdSleepMilliseconds(20);
-//						set_front_led(0);
-						if(pos_x == 2 && pos_y == 0) {
-							bc(4);
-							bc(4);
-							bc(4);
-						}
 						set_symbol_dmap(map, pos_x, pos_y, '.');
 					}
 
@@ -662,7 +753,7 @@ static THD_FUNCTION(selector_thd, arg) {
 						new_coordinate -> x = pos_x;
 						new_coordinate -> y = pos_y;
 
-						move_robot_in_dmap(*map, saved_coordinate[0], *get_robot_with_index(robot_id - 1) -> coordinate, *new_coordinate);
+						move_robot_in_dmap(*map, robot_id, *get_robot_with_index(robot_id - 1) -> coordinate, *new_coordinate);
 
 						get_robot_with_index(robot_id - 1) -> coordinate -> x = pos_x;
 						get_robot_with_index(robot_id - 1) -> coordinate -> y = pos_y;
@@ -670,14 +761,21 @@ static THD_FUNCTION(selector_thd, arg) {
 
 				}
 
-			}
-			//this shows it's not listening.
-			else {
-				set_rgb_led(LED8, 1, 0, 0);
-			}
-			set_rgb_led(LED8, 0 ,0 ,0);
-		}
+//			}
 
+		}
+		//this shows it's not listening.
+					else {
+						set_rgb_led(LED8, 1, 0, 0);
+					}
+					set_rgb_led(LED8, 0 ,0 ,0);
+	}
+
+    set_rgb_led(LED6,0, 0, 0);
+	set_body_led(1);
+	chThdSleepMilliseconds(5000);
+	set_body_led(0);
+	chThdSleepMilliseconds(100);
 }
 
 int main(void) {
@@ -706,22 +804,10 @@ int main(void) {
     new_dmap(map);
     init_robots();
 
-    for(int i = 0; i < 5; i++) {
-    	check_map(&map, i, 0);
-    	check_map(&map, -i, 0);
-    	check_map(&map, 0, i);
-    	check_map(&map, 0, -i);
-    }
-
-    chThdCreateStatic(complete_thd_wa, sizeof(complete_thd_wa), NORMALPRIO, complete_thd, NULL);
     chThdCreateStatic(record_thd_wa, sizeof(record_thd_wa), NORMALPRIO, record_thd, NULL);
 	chThdCreateStatic(comm_thd_wa, sizeof(comm_thd_wa), NORMALPRIO, comm_thd, NULL);
 	chThdCreateStatic(selector_thd_wa, sizeof(selector_thd_wa), NORMALPRIO, selector_thd, NULL);
 	chThdCreateStatic(working_thd_wa, sizeof(working_thd_wa), NORMALPRIO, working_thd, NULL);
-//	chThdCreateStatic(yeye_thd_wa, sizeof(yeye_thd_wa), NORMALPRIO, yeye_thd, NULL);
-
-
-
 
     /* Infinite loop. */
     while (1) {

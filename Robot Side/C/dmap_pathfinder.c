@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
 
 #include "dmap_pathfinder.h"
 #include "dynamic_map.h"

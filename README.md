@@ -11,10 +11,16 @@ Features from e-puck2 that we use:
 * LEDs
 * Motors
 * Speakers
+* ToF sensor
 * Microphones
-* Proximity sensors
 
-## Available Programs
+In the main branch, there are PC side and Robot side implementation of the algorithm. The PC side is in Python and
+requires a PC with bluetooth to connect the robots. The PC act as a center entity. On the other hand, the Robot side
+development allows the robot to communicate with each other using sound without any center entity. In the Robot side,
+we only use the C files since we haven't found a way to assign functions to different threads in C++ using the ChibiOS
+library.
+
+## Available Robot Side Programs
 1. Exploration with fixed map (indicated with *map*)
 2. Exploration with non-fixed map (indicated with *dmap*)
 

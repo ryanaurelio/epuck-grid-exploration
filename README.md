@@ -1,104 +1,105 @@
-# e-puck 2 Grid Exploration
+# e-puck2 Grid Exploration
 
-A project for exploring a map as grids using e-puck 2. The robots will use sound for communication encoded using
-different range of frequencies. 
+A project for exploring a map as grids using e-puck 2. The robots use sound for communication, encoded to different
+range of frequencies. This project doesn't require any additional devices to work.
 
-First, the robot will enter an initialization phase to register all the available robots. After the initialization phase
-is complete, the robots will explore the map. While exploring, they will use sound to communicate which grid they will
+First, the robot will enter a connecting phase to register all the available robots. After the connection phase is
+complete, the robots will explore the map. While exploring, they will use sound to communicate which grid they will
 explore. Each robot will keep track which grid is already explored.
 
 Features from e-puck2 that we use:
-<ul>
-  <li> Microphone </li>
-  <li> Speaker </li>
-  <li> Motor </li>
-  <li> LED </li>
-</ul>
+* LEDs
+* Motors
+* Speakers
+* Microphones
+* Proximity sensors
 
-<h2>There are two separate program that we uploaded here </h2>
-<ol>
-  <li> program with fixed map </li>
-  <li> program with non-fixed map </li>
- </ol>
-<h2>How the program works: </h2>
-<ol>
-  <li> <h3> Connecting Phase </h3>
-    <p> The connecting phase for both of programs are the same.
-      Here, the robot will produce a sound(~2100Hz) for 1 second and wait 5 seconds for a reply(~2100Hz) for another robot. The LED2 indicates the time for the robot to hear the reply. <br>
-      If the robot hears the sound in this 5 seconds, the robot will register the sound as earlier robot (robot number ID = 1, robot number ID = 2, ..). LED1 will be used as an indicator for registering the robot. <br>
-      After 5 seconds has elapsed, the robot will register itself to the list of the robots and then the robot will wait again for 5 seconds to respond to another robot. LED4 will be used as an indicator for this phase. <br>
-    </p>
-    <h4> Position </h4>
-      <ol>
-        <li> <h5> for the fixed map </h5>
-          <p>
-            the initial position would be (1, ID), where ID is the ID of the robot (starts at 1).
-          </p>
-        </li>
-        <li> <h5> for the non-fixed map </h5>
-          <p> the initial position would be (ID - 1, 0), where ID is the ID of the robot (starts at 1).
-        </li>
-    </ol>
-  </li>
-  <li> <h3> Working </h3>
-    <ol> 
-      <li> <h4> for the fixed map </h4> 
-        <p> first of all, the robots will check if the map is already completed. If it isn't, the robot will check if it's the robot's turn. If it is, the robot will find the nearest coordinate and broadcast them. By broadcasting the coordinates, the other robots will recognize this robot as not working anymore, and therefore the other robots can start working. After that, the robot will go to that nearest coordinate. After moving, the robot will wait for the situation to be quiet and it will broadcast that it is done working. This process will be repeated until the map is complete.
-        </p> 
-      </li>
-      <li> <h4> for the non-fixed map </h4>
-        <p> for the non-fixed map, the robot will make a 360 degree rotation to check for an obstacle in front and for each 90degree rotation, the robot will broadcast if it is an obstacle or a empty path. After that, the process is the same as the fixed map.
-        </p>
-      </li>
-    </ol>
-    </li>
-  <li> <h3> Listening </h3>
-    <ol>
-      <li> <h4> for the fixed map </h4>
-        <p> The robot will check if the map is complete or not. If it isn't, the robot will try to listen for the sound.
-          <br>
-          X &emsp;&emsp;&emsp;-&emsp;&emsp;XX&emsp;&emsp; - XX <br>
-          robot id - position x - position y <br>
-          We encode the sound so that the broadcast has a meaning. The minus point is that, the amount of robots will be 9 at max, and the size of the map will be 16 x 16 max. <br>
-          sound frequencies that we use:
-        </p>
-          <ul>
-            <li> 1200Hz - 1400Hz : 0, LED1 will be used as indicator
-            </li>
-            <li> 1400Hz - 1600Hz : 1, LED3 will be used as indicator
-            </li>
-            <li> 1600Hz - 1800Hz : 2, LED5 will be used as indicator
-            </li>
-            <li> 1800Hz - 2000Hz : 3, LED7 will be used as indicator
-            </li>
-            <li> 2000Hz - 2200Hz : done, body led will be used as indicator. Here, the robot will update the position of another robot.
-            </li>
-        </ul>
-      </li>
-      <li> <h4> for the non-fixed map </h4>
-        <p> the idea is almost the same, but the sound is divided into binary. <br>
-          X &emsp;&emsp;&emsp;- X&emsp;&emsp;&emsp;&emsp;-OX&emsp;&emsp;&emsp;&emsp;-X&emsp;&emsp;&emsp;&emsp;-OX&emsp;&emsp;&emsp;&emsp;-X <br>
-          robot id - separator - position x - separator - position y - separator<br>
-          <ul>
-            <li>
-          for the position : OX. These O indicates if the number is positive or negative or it broadcasts done. 00 indicates positive, 01 indicates negative, 11 indicates done.
-            </li>
-          </ul>
-        <br>
-        With this, we can also use more than 9 robots and our map can get bigger than 16 x 16. <br>
-        sound frequencies that we use:
-          <ul>
-            <li> 1200Hz - 1500Hz : 0, LED1 will be used as indicator
-            </li>
-            <li> 1500Hz - 1800Hz : 1, LED3 will be used as indicator
-            </li>
-            <li> 1800Hz - 2100Hz : done, LED7 will be used as indicator. Here, the robot will update the position of another robot.
-            </li>
-          </ul>
-        </p>
-      </li>
-    </ol>
-  </li>
-  </ol>
-      
+## Available Programs
+1. Exploration with fixed map (indicated with *map*)
+2. Exploration with non-fixed map (indicated with *dmap*)
+
+## Program Description
+
+### 1. Connecting Phase
+
+The connecting phase for both of programs are identical. Here, the robot will produce a sound (~2100Hz) for 1 second and
+wait 5 seconds for a reply (~2100Hz) from other robots. The 2nd LED (blue) indicates the time for the robot to hear the
+reply. As soon as the receiver robot hears the sound in this time frame, the receiver robot will register the sender
+robot as predecessor robot (starting from robot ID = 1). If the receiver robot hears another sound, it will register
+this new robot with ID = 2, etc. The 1st LED will be used as an indicator for registering the robot. Everytime, the
+receiver robot hears a sound, it will reset the 5 seconds timer.
+
+After 5 seconds has elapsed, the robot will register itself to the list of the robots with new ID and then the robot
+will wait again for 5 seconds. In this time frame, when a new robot is turned on, the robot will hear a sound from that
+new robot. The robot will also produce a sound for this robot as a response to let the new robot know that there is
+other predecessor robots. The 4th LED will be used as an indicator for this phase.
+
+#### Position
+* **For the fixed map** 
+
+   The initial position would be (1, ID)
+
+* **For the non-fixed map**
+
+    The initial position would be (ID - 1, 0)
+
+Where ID is theID of the robot (starts at 1).
+
+### 2. Exploring Phase
+
+#### Working
+
+* **For the fixed map**
+
+  First, the robots will check whether the map is already completed. If it's not the case, the robot will check if it's
+  the robot's turn (First free robot in the list). If it is, the robot will find the nearest coordinate and broadcast
+  it. By broadcasting the coordinate, the other robots will remove this robot from the free robots and mark the target
+  coordinate and the path it uses in the map. This is to make sure that there won't be any collision. After broadcasting
+  the coordinate, the robot can now move in the map and other robots can also start working. After moving, the robot
+  will wait for the situation to be quiet, and it will broadcast that it's done working. The other robots will mark the
+  previous path as explored. This process will be repeated until the map is complete.
+
+
+* **For the non-fixed map**
+
+  The only difference here is the robot will make a 360° rotation before exploring to check for an obstacle in front of
+  the robot and for each 90° rotation. The robot will then broadcast if it is an obstacle or an unexplored grid. After
+  the broadcast, all robots will mark the map according to the information sent.
+
+#### Listening
+
+* **For the fixed map**
+
+  The robot will check whether the map is complete. If it isn't, the robot will try to listen for the sound. The robot
+  will hear 5 *beeps* as the following:
+
+  | X        | XX         | XX         |
+  |----------|------------|------------|
+  | Robot ID | Position x | Position y |
+
+  Sound frequencies that we use:
+  * 1200Hz - 1400Hz : 0 (indicated by LED1)
+  * 1400Hz - 1600Hz : 1 (indicated by LED3)
+  * 1600Hz - 1800Hz : 2 (indicated by LED5)
+  * 1800Hz - 2000Hz : 3 (indicated by LED7)
+  * 2000Hz - 2200Hz : Done working indicator (Indicated by body LED)
   
+
+* **For the non-fixed map**
+
+  The difference is we use separator here, and we encode the information in binary due to the instability when using
+  more frequency ranges.
+
+  | X        | X         | OX         | X         | OX         | X         |
+  |----------|-----------|------------|-----------|------------|-----------|
+  | Robot ID | Separator | Position x | Separator | Position y | Separator |
+
+  Where O indicates the number sign or when the broadcast is done.
+  * 00 : Positive sign (+)
+  * 01 : Negative sign (-)
+  * 11 : Broadcast done
+
+  Sound frequencies that we use:
+  * 1200Hz - 1500Hz : 0 (indicated by LED1)
+  * 1500Hz - 1800Hz : 1 (indicated by LED3)
+  * 1800Hz - 2100Hz : Done working indicator (indicated by LED7)

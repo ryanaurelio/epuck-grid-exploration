@@ -158,8 +158,8 @@ Engineering Notebook
 * Left with (5 classes with 200Hz each).
 
 10th - 16th March:
-* Implement the communication algorithm in C using frequency.
-* Implement and fix some bugs for the exploration algorithm in C, so they can communicate with each other.
+* Implemented the communication algorithm in C using frequency.
+* Implemented and fix some bugs for the exploration algorithm in C, so they can communicate with each other.
 * Successfully communicate the map with each other.
 
 17th March 2022:
@@ -172,3 +172,29 @@ Engineering Notebook
 * Didn't work because the vibration of the robot still creates a noise.
 * Tried to use a rubber band as the bumper.
 * Didn't work since the height difference between the body of the robot and the wheel are very small.
+
+21st - 23rd March 2022:
+* Implemented a dynamic map.
+* Tweaked the pathfinder for the new map.
+
+24th March 2022:
+* Tried using proximity sensor.
+* Unpredictable value of proximity sensor.
+* Tried using ToF sensor. (More stable)
+* Decided to use ToF sensor
+
+25th - 26th March 2022:
+* Working on new communication encoding.
+
+27th - 28th March 2022:
+* Crafted map from cardboards and mouse pad.
+* Tried the exploration algorithm.
+* Debug errors from pathfinder and communication.
+
+29th March 2022:
+* Decided to decrease the frequency ranges for more stable communication.
+* The communication is more stable but the longer the communication, the more prone it becomes to noises such as car sounds.
+
+11th - 14th April:
+* Updated the description for the project.
+* Summarize the project.

@@ -22,7 +22,7 @@ library.
 
 ## Available Robot Side Programs
 1. Exploration with fixed map (indicated with *map*)
-2. Exploration with non-fixed map (indicated with *dmap*)
+2. Exploration with non-fixed map (indicated with *dmap*) (See *[Non-Fixed-Map](https://github.com/ryanaurelio/epuck-grid-exploration/tree/Non-Fixed-Map)*)
 
 ## Program Description
 
@@ -43,7 +43,7 @@ other predecessor robots. The 4th LED will be used as an indicator for this phas
 #### Position
 * **For the fixed map** 
 
-   The initial position would be (1, ID)
+   The initial position would be (1, ID). To change the size of the map, please refer to *map.h*.
 
 * **For the non-fixed map**
 

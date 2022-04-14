@@ -11,30 +11,46 @@ void flood_fill(char vmap[HEIGHT][WIDTH], int row, int column, coordinate_node *
     char symbol = vmap[row][column];
     Coordinate c = {row, column};
     char id = (char) (get_my_id() - 208);
-    if ((symbol != '.' && symbol != 'o' && symbol != id) || coordinate_list_contains(reachable, &c))
-//    if ((symbol == 'x') || coordinate_list_contains(reachable, &c))
-        return;
 
+    // Stop the recursion if the robot can't go through the coordinate
+    if ((symbol != '.' && symbol != 'o' && symbol != id) || coordinate_list_contains(reachable, &c)) return;
+
+    // Push the covered area into the reachable list
     push_coordinate_list(reachable, c);
+
+    // Next recursion to each direction
     flood_fill(vmap, row+1, column, reachable);     // South
     flood_fill(vmap, row-1, column, reachable);     // North
     flood_fill(vmap, row, column-1, reachable);     // West
     flood_fill(vmap, row, column+1, reachable);     // East
 }
 
-coordinate_node * get_unexplored_coordinates(char vmap[HEIGHT][WIDTH], int row, int column) {
-    coordinate_node * reachable;
-    reachable = (coordinate_node *) malloc(sizeof(coordinate_node));
-    new_coordinate_list(reachable);
+int check_valid_coordinate(char vmap[HEIGHT][WIDTH], coordinate_node * explored, Coordinate direction) {
+    // The coordinate at the next direction
+    char coordinateSymbol = vmap[direction.x][direction.y];
 
+    // The coordinate at the next direction
+    int inExplored = coordinate_list_contains(explored, &direction);
+
+    // Check whether the robot can stand on the coordinate
+    int validSymbol = coordinateSymbol == 'o' || coordinateSymbol == '.';
+
+    return !inExplored && validSymbol;
+}
+
+coordinate_node * get_unexplored_coordinates(char vmap[HEIGHT][WIDTH], int row, int column) {
+    // Get the reachable grids using the flood fill algorithm
+    coordinate_node * reachable;
+    reachable = (coordinate_node *) malloc (sizeof(coordinate_node));
+    new_coordinate_list(reachable);
     flood_fill(vmap, row, column, reachable);
 
     coordinate_node * unexplored;
     unexplored = (coordinate_node *) malloc(sizeof(coordinate_node));
     new_coordinate_list(unexplored);
 
+    // Filters the reachable list only keeping the unexplored grids
     coordinate_node * current = reachable;
-
     while (current != NULL) {
         if (vmap[current->val.x][current->val.y] == '.')
             push_coordinate_list(unexplored, current->val);
@@ -42,13 +58,6 @@ coordinate_node * get_unexplored_coordinates(char vmap[HEIGHT][WIDTH], int row, 
     }
 
     return unexplored;
-}
-
-int check_valid_coordinate(char vmap[HEIGHT][WIDTH], coordinate_node * explored, Coordinate direction) {
-    char coordinateSymbol = vmap[direction.x][direction.y];
-    int inExplored = coordinate_list_contains(explored, &direction);
-    int validSymbol = coordinateSymbol == 'o' || coordinateSymbol == '.';
-    return !inExplored && validSymbol;
 }
 
 coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_node * unexploredCoordinates, int row, int column) {
@@ -61,33 +70,41 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
     new_coordinate_list(cl);
     push_coordinate_list(cl, c);
 
-    // Initial path list
+    // Initial path list that consists only a path with only 1 coordinate
     path_node * paths;
     paths = (path_node *) malloc(sizeof(path_node));
     new_path_list(paths);
     push_path_list(paths, cl);
 
+    // A list of explored grids to prevent checking the grid again
     coordinate_node * explored;
     explored = (coordinate_node *) malloc(sizeof(coordinate_node));
     new_coordinate_list(explored);
 
+    // Search for a path as long as there is an unexplored coordinate using a breadth first search
     while (!is_coordinate_list_empty(unexploredCoordinates)) {
+        // A list of paths with the same depth
         path_node * newPaths;
         newPaths = (path_node *) malloc(sizeof(path_node));
         new_path_list(newPaths);
 
+        // Initial path list
         path_node * p = paths;
 
+        // Add the next coordinate according to direction for every path in path list
         while (p != NULL) {
+            // Take the last coordinate of the current path
             Coordinate * last = coordinate_list_last(p->val);
             int currRow = last->x;
             int currCol = last->y;
 
+            // Next coordinate directions
             Coordinate south = {currRow+1, currCol};
             Coordinate north = {currRow-1, currCol};
             Coordinate west = {currRow, currCol-1};
             Coordinate east = {currRow, currCol+1};
 
+            // If an unexplored coordinate is found, return current path
             if (coordinate_list_contains(unexploredCoordinates, &south)) {
                 push_coordinate_list(p->val, south);
                 return p->val;
@@ -105,6 +122,7 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
                 return p->val;
             }
 
+            // Construct a new path for each valid coordinates
             if (check_valid_coordinate(vmap, explored, south)) {
                 push_coordinate_list(explored, south);
                 coordinate_node * newP = copy_coordinate_list(p->val);
@@ -132,8 +150,10 @@ coordinate_node * get_nearest_unexplored(char vmap[HEIGHT][WIDTH], coordinate_no
 
             p = p->next;
         }
+        // Update the path list with the new longer paths
         paths = newPaths;
     }
+    // Return empty list if there are no paths found
     coordinate_node * empty;
     empty = (coordinate_node *) malloc(sizeof(coordinate_node));
     new_coordinate_list(empty);
@@ -150,15 +170,17 @@ char * parse_path(coordinate_node * path, Robot * robot) {
     coordinate_node * current = path;
     int len = 0;
     while (current->next != NULL) {
-
+        // Pair of coordinates
         int pr = current->val.x;
         int pc = current->val.y;
         int qr = current->next->val.x;
         int qc = current->next->val.y;
 
+        // Coordinate differences
         int r = qr - pr;
         int c = qc - pc;
 
+        // Determine the direction
         if (r == -1)
         	seq[len] = 'W';
         else if (c == -1)
@@ -172,86 +194,87 @@ char * parse_path(coordinate_node * path, Robot * robot) {
         len++;
     }
 
+    // The speed of the robot
     int speed = 550;
 
-    for(int i = 0; i < len; i++) {
-    		char movement = seq[i];
-    		switch(movement){
-				case 'W':
-					switch(robot -> direction) {
-					case UP:
-						break;
-					case DOWN:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case LEFT:
-						turnRight(speed);
-						break;
-					case RIGHT:
-						turnLeft(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = UP;
-					break;
-				case 'S':
-					switch(robot -> direction) {
-					case UP:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case DOWN:
-						break;
-					case LEFT:
-						turnLeft(speed);
-						break;
-					case RIGHT:
-						turnRight(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = DOWN;
-					break;
-				case 'D':
-					switch(robot -> direction) {
-					case UP:
-						turnRight(speed);
-						break;
-					case DOWN:
-						turnLeft(speed);
-						break;
-					case LEFT:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					case RIGHT:
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = RIGHT;
-					break;
-				case 'A':
-					switch(robot -> direction) {
-					case UP:
-						turnLeft(speed);
-						break;
-					case DOWN:
-						turnRight(speed);
-						break;
-					case LEFT:
-						break;
-					case RIGHT:
-						turnLeft(speed);
-						turnLeft(speed);
-						break;
-					}
-					moveForward(speed);
-					robot -> direction = LEFT;
-					break;
-    		}
-    	}
-    return seq;
+    for (int i = 0; i < len; i++) {
+        // Move the robot according to the sequence
+        char movement = seq[i];
+        switch(movement){
+            case 'W':
+                switch(robot -> direction) {
+                case UP:
+                    break;
+                case DOWN:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                case LEFT:
+                    turnRight(speed);
+                    break;
+                case RIGHT:
+                    turnLeft(speed);
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = UP;
+                break;
+            case 'S':
+                switch(robot -> direction) {
+                case UP:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                case DOWN:
+                    break;
+                case LEFT:
+                    turnLeft(speed);
+                    break;
+                case RIGHT:
+                    turnRight(speed);
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = DOWN;
+                break;
+            case 'D':
+                switch(robot -> direction) {
+                case UP:
+                    turnRight(speed);
+                    break;
+                case DOWN:
+                    turnLeft(speed);
+                    break;
+                case LEFT:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                case RIGHT:
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = RIGHT;
+                break;
+            case 'A':
+                switch(robot -> direction) {
+                case UP:
+                    turnLeft(speed);
+                    break;
+                case DOWN:
+                    turnRight(speed);
+                    break;
+                case LEFT:
+                    break;
+                case RIGHT:
+                    turnLeft(speed);
+                    turnLeft(speed);
+                    break;
+                }
+                moveForward(speed);
+                robot -> direction = LEFT;
+                break;
+        }
+    }
 }
 
 coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t) {
@@ -262,7 +285,6 @@ coordinate_node * find_path(char vmap[HEIGHT][WIDTH], Coordinate s, Coordinate t
         return unexplored;
     }
 
-//    unexplored = (coordinate_node *) malloc(sizeof(coordinate_node));
     unexplored->val = t;
     unexplored->next = NULL;
 

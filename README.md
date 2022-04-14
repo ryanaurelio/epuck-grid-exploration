@@ -21,7 +21,7 @@ we only use the C files since we haven't found a way to assign functions to diff
 library.
 
 ## Available Robot Side Programs
-1. Exploration with fixed map (indicated with *map*)
+1. Exploration with fixed map (indicated with *map*) (See *[Fixed-Map](https://github.com/ryanaurelio/epuck-grid-exploration/tree/Fixed-Map)*)
 2. Exploration with non-fixed map (indicated with *dmap*) (See *[Non-Fixed-Map](https://github.com/ryanaurelio/epuck-grid-exploration/tree/Non-Fixed-Map)*)
 
 ## Program Description
